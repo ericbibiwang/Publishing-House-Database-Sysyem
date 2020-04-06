@@ -1,6 +1,9 @@
 package wolfpub;
 
 import java.sql.*;
+import java.util.Vector;
+
+import de.vandermeer.asciitable.AsciiTable;
 
 /**
  * Manages connections and queries to WolfPubDb from WolfPub.
@@ -24,7 +27,7 @@ public class WolfPubDb implements AutoCloseable {
 		super();
 		connect();
 	}
-	
+
 	/**
 	 * @param conn
 	 * @param statement
@@ -38,7 +41,7 @@ public class WolfPubDb implements AutoCloseable {
 		this.rs = rs;
 		connect();
 	}
-	
+
 	/**
 	 * Connect to WolfPubDB
 	 * @throws SQLException 
@@ -54,13 +57,19 @@ public class WolfPubDb implements AutoCloseable {
 			}
 		}
 	}
-	
+
 	/**
 	 * close gets called implicitly in try-with-resources blocks.
 	 */
 	@Override
 	public void close() {
 		try {
+			if (rs != null) {
+				rs.close();
+			}
+			if (statement != null) {
+				statement.close();
+			}
 			if (conn != null) {
 				conn.close();
 			}
@@ -79,9 +88,9 @@ public class WolfPubDb implements AutoCloseable {
 		try {
 			statement = conn.createStatement();
 			rs = statement.executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'");
-			
+
 			int cols = rs.getMetaData().getColumnCount();
-			
+
 			while (rs.next()) {
 				for (int i = 1; i <= cols; i++) {
 					System.out.println(rs.getString(i));
@@ -90,6 +99,45 @@ public class WolfPubDb implements AutoCloseable {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	public void selectTable(String table) {
+		try {
+			statement = conn.createStatement(); 
+			rs = statement.executeQuery("DESCRIBE " + table);
+			
+			Vector<String> result = new Vector<String>();
+
+			while (rs.next()) {
+				result.add(rs.getString(1));
+			}
+
+			AsciiTable printTable = new AsciiTable();
+			
+			printTable.addRule();
+			printTable.addRow(result);
+			printTable.addRule();
+			
+			rs = statement.executeQuery("SELECT * FROM " + table);
+
+			int cols = rs.getMetaData().getColumnCount();
+			
+			while (rs.next()) {
+				result.clear();
+				for (int i = 1; i <= cols; i++) {
+					result.add(rs.getString(i));
+				}
+				printTable.addRow(result);
+			}
+
+			printTable.addRule();
+			System.out.print(printTable.render(cols * 20));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+
 		}
 	}
 }
