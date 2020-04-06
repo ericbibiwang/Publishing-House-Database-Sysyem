@@ -1,9 +1,10 @@
 /**
  * 
  */
-package wolfpub;
+
 
 import java.sql.SQLException;
+import java.util.List;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -15,13 +16,16 @@ import wolfpub.WolfPubDb;
  * @author Chris Suh
  *
  */
-@Command(name = "project3.WolfPub", sortOptions = false, header = "@|blue WolfPub Publishing House|@", description = {
+@Command(name = "WolfPub", sortOptions = false, header = "@|blue WolfPub Publishing House|@", description = {
 		"", "Edit, Publish, and Order publications", }, optionListHeading = "@|bold %nOptions|@:%n")
 public class WolfPub implements Runnable {
 	static WolfPubDb db = null;
 	
-	@Option(names = {"--list_tables"}, description = "Connect to wolfPubDb and print a list of tables")
+	@Option(names = {"-l", "--list_tables"}, description = "Connect to wolfPubDb and print a list of tables")
 	boolean list;
+	
+	@Option(names = {"-d", "--dump_table"}, paramLabel = "table", split = ",", description = "Show the contents of any table in the database")
+	List<String> tables;
 
 	@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message")
 	private boolean helpRequested = false;
@@ -41,11 +45,14 @@ public class WolfPub implements Runnable {
 		assert exitCode == 0;
 	}
 
-	// Run gets called by picocli after parsing.
+	/**
+	 *  Run gets called by picocli after parsing.
+	 */
 	@Override
 	public void run() {
 		if (!helpRequested
-				&& !list) {
+				&& !list
+				&& tables == null) {
 			CommandLine.usage(this, System.err);
 			return;
 		}
@@ -54,22 +61,39 @@ public class WolfPub implements Runnable {
 			list();
 		}
 		
+		if (tables != null && !tables.isEmpty()) {
+			dumpTables();
+		}
+		
 		if (helpRequested) {
 			longHelp();
 		}
+		
+		db.close();
 	}
 
 	/**
-	 * Print longer help text
+	 * Dump all tables requested.
 	 */
-	public void longHelp() {
-		System.out.println("Stub for help output longer than normal usage");
+	private void dumpTables() {
+		for (String table : tables) {
+			System.out.printf("%s:%n",table);
+			db.selectTable(table);
+			System.out.println();
+		}
 	}
-	
+
 	/**
 	 * Print all tables in database
 	 */
 	public void list() {
 		db.listTables();
+	}
+	
+	/**
+	 * Print longer help text
+	 */
+	public void longHelp() {
+		System.out.println("Stub for help output longer than normal usage");
 	}
 }
