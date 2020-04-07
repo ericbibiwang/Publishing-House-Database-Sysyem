@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="WolfPub">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="12"/>
+    <property name="source" value="12"/>
+    <path id="Maven Dependencies.libraryclasspath">
+        <pathelement location="../../../.m2/repository/info/picocli/picocli/4.2.0/picocli-4.2.0.jar"/>
+        <pathelement location="../../../.m2/repository/org/mariadb/jdbc/mariadb-java-client/2.6.0/mariadb-java-client-2.6.0.jar"/>
+        <pathelement location="../../../.m2/repository/de/vandermeer/asciitable/0.3.2/asciitable-0.3.2.jar"/>
+        <pathelement location="../../../.m2/repository/de/vandermeer/ascii-utf-themes/0.0.1/ascii-utf-themes-0.0.1.jar"/>
+        <pathelement location="../../../.m2/repository/de/vandermeer/skb-interfaces/0.0.1/skb-interfaces-0.0.1.jar"/>
+        <pathelement location="../../../.m2/repository/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar"/>
+        <pathelement location="../../../.m2/repository/org/antlr/ST4/4.0.8/ST4-4.0.8.jar"/>
+        <pathelement location="../../../.m2/repository/org/antlr/antlr-runtime/3.5.2/antlr-runtime-3.5.2.jar"/>
+        <pathelement location="../../../.m2/repository/org/antlr/antlr4/4.5.1/antlr4-4.5.1.jar"/>
+        <pathelement location="../../../.m2/repository/org/slf4j/slf4j-api/1.7.12/slf4j-api-1.7.12.jar"/>
+        <pathelement location="../../../.m2/repository/de/vandermeer/char-translation/0.0.2/char-translation-0.0.2.jar"/>
+    </path>
+    <path id="WolfPub.classpath">
+        <pathelement location="target/classes"/>
+        <path refid="Maven Dependencies.libraryclasspath"/>
+    </path>
+    <path id="run.help.classpath">
+        <path refid="WolfPub.classpath"/>
+        <path refid="Maven Dependencies.libraryclasspath"/>
+    </path>
+    <path id="run.usage.classpath">
+        <path refid="WolfPub.classpath"/>
+        <path refid="Maven Dependencies.libraryclasspath"/>
+    </path>
+    <path id="run.dump employees.classpath">
+        <path refid="WolfPub.classpath"/>
+        <path refid="Maven Dependencies.libraryclasspath"/>
+    </path>
+    <path id="run.dump distributors.classpath">
+        <path refid="WolfPub.classpath"/>
+        <path refid="Maven Dependencies.libraryclasspath"/>
+    </path>
+    <path id="run.list tables.classpath">
+        <path refid="WolfPub.classpath"/>
+        <path refid="Maven Dependencies.libraryclasspath"/>
+    </path>
+    <path id="run.dump Book,NonBook.classpath">
+        <path refid="WolfPub.classpath"/>
+        <path refid="Maven Dependencies.libraryclasspath"/>
+    </path>
+    <target name="init">
+        <mkdir dir="target/classes"/>
+        <copy includeemptydirs="false" todir="target/classes">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="target/classes"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="target/classes" includeantruntime="false" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="WolfPub.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+    <target name="help">
+        <java classname="WolfPub" failonerror="true" fork="yes">
+            <arg line="-h"/>
+            <classpath refid="run.help.classpath"/>
+        </java>
+    </target>
+    <target name="usage">
+        <java classname="WolfPub" failonerror="true" fork="yes">
+            <classpath refid="run.usage.classpath"/>
+        </java>
+    </target>
+    <target name="dump employees">
+        <java classname="WolfPub" failonerror="true" fork="yes">
+            <arg line="-d Employee"/>
+            <classpath refid="run.dump employees.classpath"/>
+        </java>
+    </target>
+    <target name="dump distributors">
+        <java classname="WolfPub" failonerror="true" fork="yes">
+            <arg line="--dump_table=Distributor"/>
+            <classpath refid="run.dump distributors.classpath"/>
+        </java>
+    </target>
+    <target name="list tables">
+        <java classname="WolfPub" failonerror="true" fork="yes">
+            <arg line="--list_tables"/>
+            <classpath refid="run.list tables.classpath"/>
+        </java>
+    </target>
+    <target name="dump Book,NonBook">
+        <java classname="WolfPub" failonerror="true" fork="yes">
+            <arg line="-d Book,NonBook"/>
+            <classpath refid="run.dump Book,NonBook.classpath"/>
+        </java>
+    </target>
+</project>
