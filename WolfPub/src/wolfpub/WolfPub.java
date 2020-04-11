@@ -1,3 +1,4 @@
+package wolfpub;
 /**
  * 
  */
@@ -10,16 +11,23 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-import wolfpub.WolfPubDb;
+
+import tasks.*;
 
 /**
  * @author Chris Suh
  *
  */
-@Command(name = "WolfPub", sortOptions = false, header = "@|blue WolfPub Publishing House|@", description = {
-		"", "Edit, Publish, and Order publications", }, optionListHeading = "@|bold %nOptions|@:%n")
+@Command(name = "wolfpub", sortOptions = false, header = "@|blue WolfPub Publishing House|@", description = {
+		"", "Edit, Publish, and Order publications", }, optionListHeading = "@|bold %nOptions|@:%n",
+				subcommands = {
+						Distribution.class/*,
+						EditingPublishing.class,
+						Production.class,
+						Reports.class	*/					
+				})
 public class WolfPub implements Runnable {
-	static WolfPubDb db = null;
+	private static WolfPubDb db = null;
 	
 	@Option(names = {"-l", "--list_tables"}, description = "Connect to wolfPubDb and print a list of tables")
 	boolean list;
@@ -41,6 +49,7 @@ public class WolfPub implements Runnable {
 			e.printStackTrace();
 			return;
 		}
+		
 		int exitCode = new CommandLine(new WolfPub()).execute(args);
 		assert exitCode == 0;
 	}
@@ -69,7 +78,7 @@ public class WolfPub implements Runnable {
 			longHelp();
 		}
 		
-		db.close();
+		getDb().close();
 	}
 
 	/**
@@ -78,7 +87,7 @@ public class WolfPub implements Runnable {
 	private void dumpTables() {
 		for (String table : tables) {
 			System.out.printf("%s:%n",table);
-			db.selectTable(table);
+			getDb().selectTable(table);
 			System.out.println();
 		}
 	}
@@ -87,7 +96,7 @@ public class WolfPub implements Runnable {
 	 * Print all tables in database
 	 */
 	public void list() {
-		db.listTables();
+		getDb().listTables();
 	}
 	
 	/**
@@ -95,5 +104,9 @@ public class WolfPub implements Runnable {
 	 */
 	public void longHelp() {
 		System.out.println("Stub for help output longer than normal usage");
+	}
+
+	public static WolfPubDb getDb() {
+		return db;
 	}
 }

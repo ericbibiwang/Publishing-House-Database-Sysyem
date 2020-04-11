@@ -102,6 +102,11 @@ public class WolfPubDb implements AutoCloseable {
 		}
 	}
 
+	/** 
+	 * SELECT * on given table name
+	 *
+	 * @param table
+	 */
 	public void selectTable(String table) {
 		try {
 			statement = conn.createStatement(); 
@@ -139,5 +144,32 @@ public class WolfPubDb implements AutoCloseable {
 		} finally {
 
 		}
+	}
+	
+	/**
+	 * Passthrough basic case of prepareStatement
+	 * @param s statement
+	 * @throws SQLException
+	 */
+	public void prepareStatement(String s) throws SQLException {
+		statement = conn.prepareStatement(s);
+	}
+	
+	/**
+	 * Passthrough basic case of createStatement
+	 * @throws SQLException
+	 */
+	public void createStatement() throws SQLException {
+		statement = conn.createStatement();
+	}
+	
+	/**
+	 * Passthrough basic case of executeUpdate
+	 * @param s statement
+	 * @return
+	 * @throws SQLException
+	 */
+	public int executeUpdate(String s) throws SQLException {
+		return statement.executeUpdate(s);
 	}
 }
