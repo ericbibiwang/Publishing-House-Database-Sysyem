@@ -22,8 +22,8 @@ import tasks.*;
 		"", "Edit, Publish, and Order publications", }, optionListHeading = "@|bold %nOptions|@:%n",
 				subcommands = {
 						Distribution.class,/*
-						EditingPublishing.class,
-						Production.class,*/
+						EditingPublishing.class */
+						Production.class,
 						Reports.class						
 				})
 public class WolfPub implements Runnable {
