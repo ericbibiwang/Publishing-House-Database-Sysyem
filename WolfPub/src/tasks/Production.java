@@ -11,6 +11,7 @@ import wolfpub.WolfPub;
 
 public class Production {
 	private static String BookTableName = "Books";
+	private static String IssueTableName = "Issue";
 	
 	/**
 	 * Command "wolfpub bookEdition new"
@@ -35,7 +36,7 @@ public class Production {
 	 * @return
 	 */
 	
-	@Command(name = "new", description = "Enter information for a book edition")
+	@Command(name = "newBook", description = "Enter information for a book edition")
 	public static int enterBookEdition(@Option( names = {"-p", "-pubID"}, required = true, description = "Book edition publicationID") String pubID,
 									   @Option( names = {"-e", "-editionNum"}, defaultValue = "0", description = "Book edition number") Double editionNum,
 									   @Option( names = {"-pd", "-pubDate"}, required = true, description = "Book new edition publication date") String pubDate,
@@ -94,28 +95,69 @@ public class Production {
 	}
 	
 	
+	@Command(name = "update", description = "update book edition")
+	public static int updateBookEdition(@Option( names = {"-p", "-pubID"}, required = true, description = "Book edition publicationID") String pubID,
+			   							@Option( names = {"-e", "-editionNum"}, defaultValue = "0", description = "Book edition number") Double editionNum,
+			   							@Option( names = {"-pd", "-pubDate"}, required = true, description = "Book new edition publication date") String pubDate,
+			   							@Option( names = {"-ep", "editionPrice"}, defaultValue = "0", description = "Book new edition price") Double editionPrice,
+			   							@Parameters( paramLabel = "ISBN") String isbn) {
+		
+		System.out.println("TODO: Attempt to update book edition information" + isbn + " with");
+		
+		if (pubID != null) {
+			System.out.println("pubID: " + pubID);
+		}
+		if (editionNum != null) {
+			System.out.println("edition number: " + editionNum);
+		}
+		if (pubDate != null) {
+			System.out.println("Publication Date: " + pubDate);
+		}
+		if (editionPrice != null) {
+			System.out.println("Edition price: " + editionPrice);
+		}
+		
+		return 0;
+	}
 	
-	public static int updateBookEdition(String isbn, String pubID, String editionNum, String pubDate, String price) {
+	
+	@Command (name = "newIssue", description = "enter information for a new issue")
+	public static int enterNewIssue(@Option( names = {"-it", "-issueTitle"}, required = true, description = "new issue title") String issueTitle,
+									@Option( names = {"p", "price"}, defaultValue = "0", description = "new issue price") Double price,
+									@Parameters( paramLabel = "PublicationID") String pubID,
+									@Parameters( paramLabel = "issueDate") String issueDate) {
 		try {
 			Vector<String> columns = new Vector<String>();
 			Vector<String> values = new Vector<String>();
 			
-			columns.add("isbn");
-			values.add(isbn);
+			/* Add values for the required parameters */
 			columns.add("pubID");
 			values.add(pubID);
-			columns.add("editionNum");
-			values.add(editionNum);
-			columns.add("pubDate");
-			values.add(pubDate);
-			columns.add("price");
-			values.add(price);
+			columns.add("issueDate");
+			values.add(issueDate);
+			
+			/* Add optional columns */
+			if (issueTitle != null) {
+				columns.add("issueTitle");
+				values.add(issueTitle);
+			}
+			if (price != null) {
+				columns.add("price");
+				values.add(String.format("%.2f", price));
+			}
 			
 			StringBuilder sb = new StringBuilder();
-			sb.append("UPDATE Edition SET pubDate=").append(pubDate).append(" WHERE isbn=").append(isbn).append(";");
-			
-			
-			System.out.println("Try to process" + sb.toString());
+			sb.append("INSERT INTO ").append(IssueTableName).append(" (");
+			for (String col : columns) {
+				sb.append(col).append(",");
+			}
+			sb.deleteCharAt(sb.lastIndexOf(",")).append(") VALUES (");
+			for (String val : values) {
+				sb.append("'").append(val).append("',");
+			}
+			sb.deleteCharAt(sb.lastIndexOf(",")).append(");");
+
+			System.out.println("Try to process " + sb.toString());
 			
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
@@ -123,101 +165,49 @@ public class Production {
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return 1;
 			}
 		
 		return 0;
 	}
 	
 	
-	
-	public static int enterNewIssue(String pubID, String issueDate, String issueTitle, String price) {
-		try {
-			Vector<String> columns = new Vector<String>();
-			Vector<String> values = new Vector<String>();
-			
-			columns.add("issueDate");
-			values.add(issueDate);
-			columns.add("pubID");
-			values.add(pubID);
-			columns.add("issueTitle");
-			values.add(issueTitle);
-			columns.add("price");
-			values.add(price);
-			
-			StringBuilder sb = new StringBuilder();
-			sb.append("INSERT INTO Issue VALUES ('isbn', 'pubID', 'issueTitle', 'price');");
-			
-			System.out.println("Try to process" + sb.toString());
-			
-			wolfpub.WolfPubDb db = WolfPub.getDb();
-			db.createStatement();
-			db.executeQuery(sb.toString());	
-			} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			}
+	@Command( name = "update", description = "update issue")
+	public static int updateIssue(@Option( names = {"-it", "-issueTitle"}, required = true, description = "new issue title") String issueTitle,
+								  @Option( names = {"p", "price"}, defaultValue = "0", description = "new issue price") Double price,
+								  @Parameters( paramLabel = "PublicationID") String pubID,
+								  @Parameters( paramLabel = "issueDate") String issueDate) {
+		
+		System.out.println("TODO: Attempt to update issue " + pubID + " " + issueDate + " with");
+		
+		if (issueTitle != null) {
+			System.out.println("issueTitle: " + issueTitle);
+		}
+		if (price != null) {
+			System.out.println("price: " + price);
+		}
 		
 		return 0;
 	}
 	
-	
-	
-	public static int updateIssue(String pubID, String issueDate, String issueTitle, String price) {
+	@Command( name = "delete", description = "Remove an issue from the database")
+	public static int deleteIssue(@Parameters( paramLabel = "PublicationID") String pubID,
+			  					  @Parameters( paramLabel = "issueDate") String issueDate) {
 		try {
-			Vector<String> columns = new Vector<String>();
-			Vector<String> values = new Vector<String>();
-			
-			columns.add("issueDate");
-			values.add(issueDate);
-			columns.add("pubID");
-			values.add(pubID);
-			columns.add("issueTitle");
-			values.add(issueTitle);
-			columns.add("price");
-			values.add(price);
-			
 			StringBuilder sb = new StringBuilder();
-			sb.append("UPDATE Issue SET price=").append(price).append("WHERE pubID=").append(pubID).append("AND issueTitle=").append(issueTitle).append(";");
+			sb.append("DELETE FROM ").append(IssueTableName).append(" WHERE ");
+			sb.append("pubID='" + pubID + "' AND ");
+			sb.append("issueDate='" + issueDate + "';");
 			
-			System.out.println("Try to process" + sb.toString());
-			
+			System.out.println("Try to process " + sb.toString());
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
-			} catch (SQLException e) {
+			db.executeUpdate(sb.toString());
+		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			}
-		
-		return 0;
-	}
-	
-	public static int deleteIssue(String pubID, String issueDate, String issueTitle, String price) {
-		try {
-			Vector<String> columns = new Vector<String>();
-			Vector<String> values = new Vector<String>();
-			
-			columns.add("issueDate");
-			values.add(issueDate);
-			columns.add("pubID");
-			values.add(pubID);
-			columns.add("issueTitle");
-			values.add(issueTitle);
-			columns.add("price");
-			values.add(price);
-			
-			StringBuilder sb = new StringBuilder();
-			sb.append("DELETE Issue WHERE pubID=").append(pubID).append("AND issueDate=").append(issueDate).append(";");
-			
-			System.out.println("Try to process" + sb.toString());
-			
-			wolfpub.WolfPubDb db = WolfPub.getDb();
-			db.createStatement();
-			db.executeQuery(sb.toString());	
-			} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			}
+			return 1;
+		}
 		
 		return 0;
 	}
