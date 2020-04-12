@@ -1,41 +1,173 @@
 package tasks;
 
-import picocli.CommandLine;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
+import java.sql.SQLException;
+import java.util.Vector;
+
+import wolfpub.WolfPub;
+
 
 public class Production {
 	
-	public static int enterBookEdition(String isbn, int editionNum, String pubDate) {
-		
+	public static int enterBookEdition(String isbn, String pubID, String editionNum, String pubDate, String price) {
+		try {
+			Vector<String> columns = new Vector<String>();
+			Vector<String> values = new Vector<String>();
+			
+			
+			columns.add("isbn");
+			values.add(isbn);
+			columns.add("pubID");
+			values.add(pubID);
+			columns.add("editionNum");
+			values.add(editionNum);
+			columns.add("pubDate");
+			values.add(pubDate);
+			columns.add("price");
+			values.add(price);
+			
+			
+			StringBuilder sb = new StringBuilder();
+			sb.append("INSERT INTO Publication VALUES ('isbn', 'pubID', 'editionNum', 'pubDate', 'price');");
+			
+			System.out.println("Try to process" + sb.toString());
+			
+			
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQuery(sb.toString());	
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
 		
 		return 0;
 	}
 	
 	
-	public static int updateBookEdition(String isbn, int editionNum, String pubDate) {
-		
+	
+	public static int updateBookEdition(String isbn, String pubID, String editionNum, String pubDate, String price) {
+		try {
+			Vector<String> columns = new Vector<String>();
+			Vector<String> values = new Vector<String>();
+			
+			columns.add("isbn");
+			values.add(isbn);
+			columns.add("pubID");
+			values.add(pubID);
+			columns.add("editionNum");
+			values.add(editionNum);
+			columns.add("pubDate");
+			values.add(pubDate);
+			columns.add("price");
+			values.add(price);
+			
+			StringBuilder sb = new StringBuilder();
+			sb.append("UPDATE Edition SET pubDate=").append(pubDate).append(" WHERE isbn=").append(isbn).append(";");
+			
+			
+			System.out.println("Try to process" + sb.toString());
+			
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQuery(sb.toString());	
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
 		
 		return 0;
 	}
 	
 	
 	
-	public static int enterNewIssue(String isbn, String issueDate, String title) {
-		
+	public static int enterNewIssue(String pubID, String issueDate, String issueTitle, String price) {
+		try {
+			Vector<String> columns = new Vector<String>();
+			Vector<String> values = new Vector<String>();
+			
+			columns.add("issueDate");
+			values.add(issueDate);
+			columns.add("pubID");
+			values.add(pubID);
+			columns.add("issueTitle");
+			values.add(issueTitle);
+			columns.add("price");
+			values.add(price);
+			
+			StringBuilder sb = new StringBuilder();
+			sb.append("INSERT INTO Issue VALUES ('isbn', 'pubID', 'issueTitle', 'price');");
+			
+			System.out.println("Try to process" + sb.toString());
+			
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQuery(sb.toString());	
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
 		
 		return 0;
 	}
 	
-	public static int updateIssue(String isbn, String issueDate, String title) {
-		
+	
+	
+	public static int updateIssue(String pubID, String issueDate, String issueTitle, String price) {
+		try {
+			Vector<String> columns = new Vector<String>();
+			Vector<String> values = new Vector<String>();
+			
+			columns.add("issueDate");
+			values.add(issueDate);
+			columns.add("pubID");
+			values.add(pubID);
+			columns.add("issueTitle");
+			values.add(issueTitle);
+			columns.add("price");
+			values.add(price);
+			
+			StringBuilder sb = new StringBuilder();
+			sb.append("UPDATE Issue SET price=").append(price).append("WHERE pubID=").append(pubID).append("AND issueTitle=").append(issueTitle).append(";");
+			
+			System.out.println("Try to process" + sb.toString());
+			
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQuery(sb.toString());	
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
 		
 		return 0;
 	}
 	
-	public static int deleteIssue(String issn) {
-		
+	public static int deleteIssue(String pubID, String issueDate, String issueTitle, String price) {
+		try {
+			Vector<String> columns = new Vector<String>();
+			Vector<String> values = new Vector<String>();
+			
+			columns.add("issueDate");
+			values.add(issueDate);
+			columns.add("pubID");
+			values.add(pubID);
+			columns.add("issueTitle");
+			values.add(issueTitle);
+			columns.add("price");
+			values.add(price);
+			
+			StringBuilder sb = new StringBuilder();
+			sb.append("DELETE Issue WHERE pubID=").append(pubID).append("AND issueDate=").append(issueDate).append(";");
+			
+			System.out.println("Try to process" + sb.toString());
+			
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQuery(sb.toString());	
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
 		
 		return 0;
 	}
