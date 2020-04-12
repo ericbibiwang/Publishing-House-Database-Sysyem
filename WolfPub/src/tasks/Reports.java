@@ -15,7 +15,6 @@ import java.sql.*;
 @Command(name = "report", 
 		description = "Generate reports"
 		)
-
 public class Reports {
 	
 	@Command(name = "distri_mon", description = "Generate monthly number and total price of each publication bought per distributor")
@@ -210,12 +209,12 @@ public class Reports {
 			StringBuilder sb1 = new StringBuilder();
 			StringBuilder sb2 = new StringBuilder();
 			sb1.append("select SUM(ContractPay) as 'Editor Payment' from Employee natural join Editor;");
-			sb2.append("select SUM(ContractPay) as 'Author Payment' from Employee natural join Author;")
+			sb2.append("select SUM(ContractPay) as 'Author Payment' from Employee natural join Author;");
 			
 			System.out.println("Try to process " + sb1.toString());
 			db.executeQuery(sb1.toString());
 			
-			System.out.println("Try to process " + sb2.toString());
+			System.out.println("\nTry to process " + sb2.toString());
 			db.executeQuery(sb2.toString());
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block

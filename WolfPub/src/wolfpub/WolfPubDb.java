@@ -11,10 +11,10 @@ import de.vandermeer.asciitable.AsciiTable;
  * @author schristo
  */
 public class WolfPubDb implements AutoCloseable {
-	static final String jdbcURL = "jdbc:mariadb://classdb2.csc.ncsu.edu:3306/cdsuh";
+	static final String jdbcURL = "jdbc:mariadb://classdb2.csc.ncsu.edu:3306/cwang64";
 
-	static String user = "cdsuh";
-	static String passwd = "csc540601";
+	static String user = "cwang64";
+	static String passwd = "200324517";
 
 	Connection conn = null;
 	Statement statement = null;
@@ -117,7 +117,7 @@ public class WolfPubDb implements AutoCloseable {
 			while (rs.next()) {
 				result.add(rs.getString(1));
 			}
-
+			
 			AsciiTable printTable = new AsciiTable();
 			
 			printTable.addRule();
@@ -159,9 +159,47 @@ public class WolfPubDb implements AutoCloseable {
 	 * Passthrough basic case of createStatement
 	 * @throws SQLException
 	 */
-//	public void createStatement() throws SQLException {
-//		statement = conn.createStatement();
-//	}
+	public void createStatement() throws SQLException {
+		statement = conn.createStatement();
+	}
+	
+	public void executeQuery(String query) throws SQLException {
+		try {
+			statement = conn.createStatement(); 
+			rs = statement.executeQuery(query);
+			
+			Vector<String> result = new Vector<String>();
+			
+			ResultSetMetaData r = rs.getMetaData();
+			int cols = r.getColumnCount();
+			
+			AsciiTable printTable = new AsciiTable();
+			
+			for(int i = 1; i<= cols; i++){
+				result.add(r.getColumnName(i));
+			}
+			
+			printTable.addRule();
+			printTable.addRow(result);
+			printTable.addRule();			
+			
+			while (rs.next()) {
+				result.clear();
+				for (int i = 1; i <= cols; i++) {
+					result.add(rs.getString(i));
+				}
+				printTable.addRow(result);
+			}
+			printTable.addRule();
+			
+			System.out.print(printTable.render(cols * 20));
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+
+		}
+	}
 	
 	/*
 	 * create tables
