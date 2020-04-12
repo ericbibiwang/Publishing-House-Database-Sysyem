@@ -25,6 +25,10 @@ public class WolfPubDb implements AutoCloseable {
 	Statement statement = null;
 	ResultSet rs = null;
 
+	public ResultSet getRs() {
+		return rs;
+	}
+
 	/**
 	 * @throws SQLException
 	 */
