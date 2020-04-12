@@ -11,10 +11,10 @@ import de.vandermeer.asciitable.AsciiTable;
  * @author schristo
  */
 public class WolfPubDb implements AutoCloseable {
-	static final String jdbcURL = "jdbc:mariadb://classdb2.csc.ncsu.edu:3306/cwang64";
+	static final String jdbcURL = "jdbc:mariadb://classdb2.csc.ncsu.edu:3306/cdsuh";
 
-	static String user = "cwang64";
-	static String passwd = "200324517";
+	static String user = "cdsuh";
+	static String passwd = "csc540601";
 
 	Connection conn = null;
 	Statement statement = null;
@@ -165,14 +165,18 @@ public class WolfPubDb implements AutoCloseable {
 	
 	public void executeQuery(String query) throws SQLException {
 		try {
+			/* Execute query */
 			statement = conn.createStatement(); 
 			rs = statement.executeQuery(query);
 			
+			/* For storage each row of result */
 			Vector<String> result = new Vector<String>();
 			
+			/* Get result of query */
 			ResultSetMetaData r = rs.getMetaData();
 			int cols = r.getColumnCount();
 			
+			/* Put result into asciiTable */
 			AsciiTable printTable = new AsciiTable();
 			
 			for(int i = 1; i<= cols; i++){
