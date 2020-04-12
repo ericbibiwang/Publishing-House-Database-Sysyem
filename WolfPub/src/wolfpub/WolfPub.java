@@ -21,8 +21,9 @@ import tasks.*;
 @Command(name = "wolfpub", sortOptions = false, header = "@|blue WolfPub Publishing House|@", description = {
 		"", "Edit, Publish, and Order publications", }, optionListHeading = "@|bold %nOptions|@:%n",
 				subcommands = {
-						Distribution.class/*,
+						Distribution.class,
 						EditingPublishing.class,
+						/*
 						Production.class,
 						Reports.class	*/					
 				})
