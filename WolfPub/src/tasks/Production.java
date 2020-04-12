@@ -3,34 +3,83 @@ package tasks;
 import java.sql.SQLException;
 import java.util.Vector;
 
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
 import wolfpub.WolfPub;
 
 
 public class Production {
+	private static String BookTableName = "Books";
 	
-	public static int enterBookEdition(String isbn, String pubID, String editionNum, String pubDate, String price) {
+	/**
+	 * Command "wolfpub bookEdition new"
+	 * Create a production with WolfPub
+	 * 
+	 * @param isbn
+	 * @param pubID
+	 * @param issueDate
+	 * @param articleTitle
+	 * @param chapterNum
+	 * @param sectionNum
+	 * @param topicName
+	 * 
+	 * @param editionNum
+	 * @param pubDate
+	 * @param editionPrice
+	 * @param price
+	 * @param issueTitle
+	 * @param chapterTitle
+	 * @param sectionTitle
+	 * @param sectionText
+	 * @return
+	 */
+	
+	@Command(name = "new", description = "Enter information for a book edition")
+	public static int enterBookEdition(@Option( names = {"-p", "-pubID"}, required = true, description = "Book edition publicationID") String pubID,
+									   @Option( names = {"-e", "-editionNum"}, defaultValue = "0", description = "Book edition number") Double editionNum,
+									   @Option( names = {"-pd", "-pubDate"}, required = true, description = "Book new edition publication date") String pubDate,
+									   @Option( names = {"-ep", "editionPrice"}, defaultValue = "0", description = "Book new edition price") Double editionPrice,
+									   @Parameters( paramLabel = "ISBN") String isbn) {
 		try {
 			Vector<String> columns = new Vector<String>();
 			Vector<String> values = new Vector<String>();
 			
-			
-			columns.add("isbn");
+			/* Add values for the required parameters */
+			columns.add("ISBN");
 			values.add(isbn);
-			columns.add("pubID");
-			values.add(pubID);
-			columns.add("editionNum");
-			values.add(editionNum);
-			columns.add("pubDate");
-			values.add(pubDate);
-			columns.add("price");
-			values.add(price);
 			
+			/* Append optional columns */
+			if (pubID != null) {
+				columns.add("PublicationID");
+				values.add(pubID);
+			}
+			if (editionNum != null) {
+				columns.add("DditionNumber");
+				values.add(String.format("%.2f", editionNum));
+			}
+			if (pubDate != null) {
+				columns.add("PublicationDate");
+				values.add(pubDate);
+			}
+			if (editionPrice != null) {
+				columns.add("Price");
+				values.add(String.format("%.2f", editionPrice));
+			}
 			
+			/* Build query */
 			StringBuilder sb = new StringBuilder();
-			sb.append("INSERT INTO Publication VALUES ('isbn', 'pubID', 'editionNum', 'pubDate', 'price');");
+			sb.append("INSERT INTO" ).append(BookTableName).append(" (");
+			for (String col : columns) {
+				sb.append(col).append(",");
+			}
+			sb.deleteCharAt(sb.lastIndexOf(",")).append(") VALUES (");
+			for (String val : values) {
+				sb.append("'").append(val).append(");");
+			}
+			sb.deleteCharAt(sb.lastIndexOf(",")).append(");");
 			
 			System.out.println("Try to process" + sb.toString());
-			
 			
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
@@ -38,6 +87,7 @@ public class Production {
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return 1;
 			}
 		
 		return 0;
