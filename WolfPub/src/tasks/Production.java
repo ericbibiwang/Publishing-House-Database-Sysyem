@@ -9,6 +9,11 @@ import picocli.CommandLine.Parameters;
 import wolfpub.WolfPub;
 import wolfpub.WolfPubDb;
 
+/**
+ * @author Tianqiang Cao
+ *
+ */
+
 @Command( name = "production", description = "Production processes")
 public class Production {
 	private static String EditionTableName = "Edition";
@@ -20,7 +25,16 @@ public class Production {
 	private static String StaffPaymentTableName = "Employee";
 	
 	
-	/* Tested. To enter a new edition of a book, need to enter a new book, a new publication first (foreign key constraints) */
+	/* description: enter a book edition with foreign key constraints
+	 * Using MySQLWorkbench
+	 * INSERT INTO `cdsuh`.`Publication` (`PublicationID`, `PublicationTitle`, `PublicationType`) VALUES ('2', 'test', 'Book');
+	 * INSERT INTO `cdsuh`.`Book` (`PublicationID`) VALUES ('2');
+	 * INSERT INTO `cdsuh`.`Edition` (`ISBN`, `PublicationID`, `EditionNumber`, `PublicationDate`) VALUES ('123123', '2', '2', '2020-01-01');
+	 *  
+	 * Check MySQLWorkbench results after run configuration as follow: production enterEdition 123123 -p 2 -e 2 -pd 2020-01-01 -ep 30
+	 * Test passed.
+	 */
+	
 	@Command(name = "enterEdition", description = "Enter information for a new book edition")
 	public static int enterBookEdition(@Option( names = {"-p", "-PublicationID"}, required = true, description = "Book edition publicationID") String PublicationID,
 									   @Option( names = {"-e", "-editionNumber"}, defaultValue = "0", description = "Book edition number") Double editionNumber,
@@ -79,7 +93,10 @@ public class Production {
 		return 0;
 	}
 	
-	
+	/* description: update edition with edition number, publication date, edition price, keep publicationID and ISBN
+	 * Check MySQLWorkbench results after run configuration as follow: production updateEdition 123123 -p 2 -e 3 -pd 2020-03-31 -ep 40 
+	 * Test passed.
+	 */
 	@Command(name = "updateEdition", description = "update book edition")
 	public static int updateBookEdition(@Option( names = {"-p", "-PublicationID"}, required = true, description = "Book edition publicationID") String PublicationID,
 			   							@Option( names = {"-e", "-editionNumber"}, defaultValue = "0", description = "Book edition number") Double editionNumber,
@@ -105,6 +122,10 @@ public class Production {
 		return 0;
 	}
 	
+	/* description: delete edition with edition publicationID(foreign key) and ISBN
+	 * Check MySQLWorkbench results after run configuration as follow: production deleteEdition 2 123123
+	 * Test passed.
+	 */
 	@Command( name = "deleteEdition", description = "Remove an book edition from the database")
 	public static int deleteEdition(@Parameters( paramLabel = "PublicationID") String PublicationID,
 			  					    @Parameters( paramLabel = "ISBN") String isbn) {
@@ -127,7 +148,12 @@ public class Production {
 		return 0;
 	}
 	
-	
+	/* description: enter an issue
+	 * INSERT INTO `cdsuh`.`Publication` (`PublicationID`, `PublicationTitle`) VALUES ('3', 'test');
+	 * INSERT INTO `cdsuh`.`NonBook` (`PublicationID`, `Period`) VALUES ('3', 'Weekly');
+	 * Check MySQLWorkbench results after run configuration as follow: production enterIssue 3 2019-01-01 -it test
+	 * Test passed.
+	 */
 	@Command (name = "enterIssue", description = "enter information for a new issue")
 	public static int enterNewIssue(@Option( names = {"-it", "-issueTitle"}, required = true, description = "new issue title") String issueTitle,
 									@Option( names = {"p", "Price"}, defaultValue = "0", description = "new issue price") Double Price,
@@ -178,12 +204,15 @@ public class Production {
 		return 0;
 	}
 	
-	
+	/* description: update issue with issue title, price, keep publicationID and issueDate
+	 * Check MySQLWorkbench results after run configuration as follow: production updateIssue 3 2019-01-01 -it updateIssue -p 20 
+	 * Test passed.
+	 */
 	@Command( name = "updateIssue", description = "update issue")
 	public static int updateIssue(@Option( names = {"-it", "-issueTitle"}, required = true, description = "new issue title") String issueTitle,
-								  @Option( names = {"p", "Price"}, defaultValue = "0", description = "new issue price") Double Price,
+								  @Option( names = {"-p", "Price"}, defaultValue = "0", description = "new issue price") Double Price,
 								  @Parameters( paramLabel = "PublicationID") String PublicationID,
-								  @Parameters( paramLabel = "issueDate") String issueDate) {
+								  @Parameters( paramLabel = "issueDate") 	 String issueDate) {
 		
 		System.out.println("TODO: Attempt to update issue " + PublicationID + " " + issueDate + " with");
 		
@@ -197,6 +226,10 @@ public class Production {
 		return 0;
 	}
 	
+	/* description: delete issue with issueDate, publicationID(foreign key)
+	 * Check MySQLWorkbench results after run configuration as follow: production deleteIssue 3 2019-01-01
+	 * Test passed.
+	 */
 	@Command( name = "deleteIssue", description = "Remove an issue from the database")
 	public static int deleteIssue(@Parameters( paramLabel = "PublicationID") String PublicationID,
 			  					  @Parameters( paramLabel = "issueDate") String issueDate) {

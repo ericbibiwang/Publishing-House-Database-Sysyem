@@ -8,6 +8,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import wolfpub.WolfPub;
+import wolfpub.WolfPubDb;
 
 import java.sql.*;
 
@@ -225,8 +226,12 @@ public class Reports {
 	
 	@Command(name = "pay_worktype", description = "Generate total payments to editors and authors per work type")
 	public static void paymentSummaryWorktype() {
+		
+		WolfPubDb db = null;
+
 		try{
-			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db = new WolfPubDb();
+			db.autoCommitOff();
 			db.createStatement();
 			
 			/* Add queries*/
@@ -235,26 +240,27 @@ public class Reports {
 			sb1.append("select SUM(ContractPay) as 'Editor Payment' from Employee natural join Editor;");
 			sb2.append("select SUM(ContractPay) as 'Author Payment' from Employee natural join Author;");
 			
-			/* Execute query*/
-			
-			db.conn.setAutoCommit(false);
 
 			System.out.println("Try to process " + sb1.toString());
 			db.executeQuery(sb1.toString());
 			System.out.println("\nTry to process " + sb2.toString());
 			db.executeQuery(sb2.toString());
 			
-			db.conn.setAutoCommit(true);
+			db.commit();
 			
 			} catch (SQLException e) {
-				if (db.conn != null) {
-					try {
-						db.conn.rollback();
-						db.conn.setAutoCommit(true);
-					} catch (SQLException e1) {
-
-						e.printStackTrace();
-					}
+				if(db != null) {
+					db.rollback();
+					System.out.println("Transaction failed. Rolling back the transaction");
+				}
+				
+				e.printStackTrace();
+				
+			} finally {
+				if(db != null) {
+					db.autoCommitOn();
+				}
+				
 			}
 
 	}
