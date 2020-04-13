@@ -229,21 +229,32 @@ public class Reports {
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
 			
-			/* Execute queries*/
+			/* Add queries*/
 			StringBuilder sb1 = new StringBuilder();
-			StringBuilder sb2 = new StringBuilder();
+			StringBuilder sb2 = new StringBuilder();			
 			sb1.append("select SUM(ContractPay) as 'Editor Payment' from Employee natural join Editor;");
 			sb2.append("select SUM(ContractPay) as 'Author Payment' from Employee natural join Author;");
 			
 			/* Execute query*/
+			
+			db.conn.setAutoCommit(false);
+
 			System.out.println("Try to process " + sb1.toString());
 			db.executeQuery(sb1.toString());
-			
 			System.out.println("\nTry to process " + sb2.toString());
 			db.executeQuery(sb2.toString());
+			
+			db.conn.setAutoCommit(true);
+			
 			} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				if (db.conn != null) {
+					try {
+						db.conn.rollback();
+						db.conn.setAutoCommit(true);
+					} catch (SQLException e1) {
+
+						e.printStackTrace();
+					}
 			}
 
 	}
