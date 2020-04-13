@@ -11,14 +11,19 @@ import de.vandermeer.asciitable.AsciiTable;
  * @author schristo
  */
 public class WolfPubDb implements AutoCloseable {
-	static final String jdbcURL = "jdbc:mariadb://classdb2.csc.ncsu.edu:3306/tcao";
+	static final String jdbcURL = "jdbc:mariadb://classdb2.csc.ncsu.edu:3306/cdsuh";
 
-	static String user = "tcao";
-	static String passwd = "200315539";
+	static String user = "cdsuh";
+	static String passwd = "csc540601";
 
 	Connection conn = null;
 	Statement statement = null;
+	PreparedStatement ps = null;
 	ResultSet rs = null;
+
+	public ResultSet getRs() {
+		return rs;
+	}
 
 	/**
 	 * @throws SQLException
@@ -39,6 +44,7 @@ public class WolfPubDb implements AutoCloseable {
 		this.conn = conn;
 		this.statement = statement;
 		this.rs = rs;
+		this.ps = null;
 		connect();
 	}
 
@@ -152,7 +158,7 @@ public class WolfPubDb implements AutoCloseable {
 	 * @throws SQLException
 	 */
 	public void prepareStatement(String s) throws SQLException {
-		statement = conn.prepareStatement(s);
+		ps = conn.prepareStatement(s);
 	}
 	
 	/**
@@ -258,5 +264,29 @@ public class WolfPubDb implements AutoCloseable {
 	 */
 	public int executeUpdate(String s) throws SQLException {
 		return statement.executeUpdate(s);
+	}
+
+	/**
+	 * Passthrough empty executeUpdate
+	 * @throws SQLException 
+	 */
+	public int executeUpdate() throws SQLException {
+		return ps.executeUpdate();
+	}
+	
+	public void setString(int parameterIndex, String s) throws SQLException {
+		ps.setString(parameterIndex, s);
+	}
+	
+	public void setInt(int parameterIndex, int i) throws SQLException {
+		ps.setInt(parameterIndex, i);
+	}
+	
+	public void setDate(int parameterIndex, Date d) throws SQLException {
+		ps.setDate(parameterIndex, d);
+	}
+
+	public void addBatch() throws SQLException {
+		ps.addBatch();
 	}
 }

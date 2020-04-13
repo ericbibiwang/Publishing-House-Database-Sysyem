@@ -3,6 +3,7 @@
 	<name>WolfPub</name>
 	<comment></comment>
 	<projects>
+		<project>WolfPubDb</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
