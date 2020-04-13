@@ -16,29 +16,8 @@ public class Production {
 	private static String ChapterTableName = "Chapter";
 	private static String TopicTableName = "Topic";
 	private static String AuthortoArticleTableName = "WritesArticle";
+	private static String StaffPaymentTableName = "Employee";
 	
-	/**
-	 * Command "wolfpub bookEdition new"
-	 * Create a production with WolfPub
-	 * 
-	 * @param isbn
-	 * @param PublicationID
-	 * @param issueDate
-	 * @param articleTitle
-	 * @param chapterNumber
-	 * @param sectionNumber
-	 * @param topicName
-	 * 
-	 * @param editionNumber
-	 * @param publicationDate
-	 * @param editionPrice
-	 * @param price
-	 * @param issueTitle
-	 * @param chapterTitle
-	 * @param sectionTitle
-	 * @param sectionText
-	 * @return
-	 */
 	
 	/* Tested. To enter a new edition of a book, need to enter a new book, a new publication first (foreign key constraints) */
 	@Command(name = "enterEdition", description = "Enter information for a new book edition")
@@ -470,42 +449,201 @@ public class Production {
 		return 0;
 	}
 	
-	
-	public static int getPublicationIssueByISSN(String issn) {
+	@Command( name = "getIssueByPubID", description = "find issue with publicationID")
+	public static void getPublicationIssueByPubID(@Parameters( paramLabel = "PublicationID" )	String PublicationID,
+												  @Parameters( paramLabel = "IssueDate" )		String IssueDate) {
+		try {
+			Vector<String> columns = new Vector<String>();
+			Vector<String> values = new Vector<String>();
 			
-		return 0; // decide on the appropriate return type; either return a tuple or print to stdout
-	}
-
-	public static int getPublicationIssueByAttr(String title, String type, String publicationPeriod, String[] authors, String editors[]) {
+			/* Add values for the required parameters */
+			columns.add("PublicationID");
+			values.add(PublicationID);
+			columns.add("IssueDate");
+			values.add(IssueDate);
+			
+			/* Add query*/
+			StringBuilder sb = new StringBuilder();
+			sb.append("SELECT IssueTitle, Price FROM Issue WHERE PublicationID=").append(PublicationID).append(" ;");
+			
+			System.out.println("Try to process " + sb.toString());
+			
+			/* Execute query*/
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQuery(sb.toString());	
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
 		
-		return 0; // decide on the appropriate return type; either return a tuple or print to stdout
 	}
 	
-	public static int getBookByISBN(String isbn) {
 	
-		return 0; // decide on the appropriate return type; either return a tuple or print to stdout
+
+	@Command( name = "getIssueByDate", description = "find issue with IssueDate")
+	public static void getPublicationIssueByPubID(@Parameters( paramLabel = "PublicationID" )	String PublicationID,
+												  @Parameters( paramLabel = "IssueDate" )		String IssueDate) {
+		try {
+			Vector<String> columns = new Vector<String>();
+			Vector<String> values = new Vector<String>();
+			
+			/* Add values for the required parameters */
+			columns.add("PublicationID");
+			values.add(PublicationID);
+			columns.add("IssueDate");
+			values.add(IssueDate);
+			
+			/* Add query*/
+			StringBuilder sb = new StringBuilder();
+			sb.append("SELECT IssueTitle, Price FROM Issue WHERE IssueDate=").append(IssueDate).append(" ;");
+			
+			System.out.println("Try to process " + sb.toString());
+			
+			/* Execute query*/
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQuery(sb.toString());	
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
+		
+	}
+	
+	@Command( name = "getArticleByAttr", description = "get article by attributes")
+	public static void getArticleByAttr(@Parameters( paramLabel = "AuthorSSN" )		String AuthorSSN,
+										@Parameters( paramLabel = "PublicationID" )	String PublicationID,
+										@Parameters( paramLabel = "IssueDate" )		String IssueDate,
+										@Parameters( paramLabel = "ArticleTitle" )	String ArticleTitle) {
+		try {
+			/* Add query*/
+			StringBuilder sb = new StringBuilder();
+			// TODO: many cases
+			sb.append("SELECT AuthorSSN, PublicationID, IssueDate, ArticleTitle FROM Article WHERE PublicationID=").append(PublicationID).append(" AND IssueDate=").append(IssueDate).append(" AND ArticleTitle=").append(ArticleTitle).append(" ;");
+			
+			System.out.println("Try to process " + sb.toString());
+			
+			/* Execute query*/
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQuery(sb.toString());	
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
+	}
+	
+	@Command( name = "getBookByISBN", description = " get book by ISBN")
+	public static void getBookByISBN(@Parameters( paramLabel = "PublicationID" )	String PublicationID) {
+		try {
+			/* Add query*/
+			StringBuilder sb = new StringBuilder();
+			// TODO: many cases
+			sb.append("SELECT PublicationTitle, PublicationID FROM Publication NATRUAL JOIN Book WHERE PublicationID=").append(PublicationID).append(" AND PublicationType=").append(Book).append(" ;");
+			
+			System.out.println("Try to process " + sb.toString());
+			
+			/* Execute query*/
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQuery(sb.toString());	
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
+		
 	}
 
-
-	public static int getBookByAttr(String title, int editionNum, String date, String[] authors, String editors[]) {
-	
-		return 0; // decide on the appropriate return type; either return a tuple or print to stdout
+	@Command ( name = "getBookByAttr", description = "get book by attributes")
+	public static void getBookByAttr(@Parameters( paramLabel = "PublicationID" )	String PublicationID) {
+		try {
+			/* Add query*/
+			StringBuilder sb = new StringBuilder();
+			// TODO: many cases
+			/*
+			 * by publicationTitle, publicationType, editionNumber along with publicationID
+			 */
+			sb.append("");
+			
+			System.out.println("Try to process " + sb.toString());
+			
+			/* Execute query*/
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQuery(sb.toString());	
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
+		
 	}
-	
-	public static int enterRegularStaffPayment(String ssn, double amount, String payment, String date) {
+
+	@Command( name = "enterStaffpayment", description = "enter payment of stuff employee")
+	public static int enterRegularStaffPayment(@Option( names = {"-n", "-name"}, description = "Employee name")			String Name,
+											   @Option( names = {"-c", "-contractPay"}, description = "Contract Pay")	Float Contractpay,
+											   @Option( names = {"p", "-payPeriod"}, description = "Pay Period")		String PayPeriod,
+											   @Parameters( paramLabel = "SSN")		String SSN) {
+		try {
+			Vector<String> columns = new Vector<String>();
+			Vector<String> values = new Vector<String>();
+			
+			/* Add values for the required parameters */
+			columns.add("SSN");
+			values.add(SSN);
+			
+			/* Append optional columns */
+			if (Name != null) {
+				columns.add("Name");
+				values.add(Name);
+			}
+			if (Contractpay != null) {
+				columns.add("Contractpay");
+				values.add(String.format("%.2f", Contractpay));
+			}
+			if (PayPeriod != null) {
+				columns.add("PayPeriod");
+				values.add(PayPeriod);
+			}
+			
+			/* Build query */
+			StringBuilder sb = new StringBuilder();
+			sb.append("INSERT INTO ").append(StaffPaymentTableName).append(" (");
+			for (String col : columns) {
+				sb.append(col).append(",");
+			}
+			sb.deleteCharAt(sb.lastIndexOf(",")).append(") VALUES (");
+			for (String val : values) {
+				sb.append("'").append(val).append("',");
+			}
+			sb.deleteCharAt(sb.lastIndexOf(",")).append(");");
+			
+			System.out.println("Try to process " + sb.toString());
+			
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQuery(sb.toString());	
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 1;
+			}
 		
 		return 0;
 	}
 	
-	
+	// TODO: difference between staff and invited is the contractPay.
 	
 	public static int enterRegularInvitedPayment(String ssn, double amount, String isbn, String issn, String pubDate, String articleTitle) {
 		
 		return 0;
 	}
 	
-	public static int trackPayment(String ssn) {
-		return 0; // decide on return value; either print to stdout or return appropriate value
+	public static void trackPayment(@Option( names = {"-a", "-amount"}, description = "Payment Amount")			Float Amount,
+									@Option( names = {"-d", "-datePickedUp"}, description = "Date picked Up")	String  dataPcikedUp,
+									@Parameters( paramLabel = "SSN")		String SSN,
+									@Parameters( paramLabel = "PaymentID")	String PaymentID) {
+		
 		
 	}
 	
