@@ -15,6 +15,8 @@ public class WolfPubDb implements AutoCloseable {
 
 	static String user = "cdsuh";
 	static String passwd = "csc540601";
+	
+	
 
 	Connection conn = null;
 	Statement statement = null;
@@ -288,5 +290,51 @@ public class WolfPubDb implements AutoCloseable {
 
 	public void addBatch() throws SQLException {
 		ps.addBatch();
+	}
+	
+	public void autoCommitOff() {
+		// start the transaction by setting autocommit to false
+		
+		try {
+			
+			conn.setAutoCommit(false);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Something went wrong when trying to set autocommit off");
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void rollback() {
+		try {
+			conn.rollback();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			
+			System.out.println("Something went wrong when trying rollback a transaction");
+			e.printStackTrace();
+			
+		}
+	}
+	public void commit() {
+		
+		try {
+			conn.commit();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Something went wrong when trying to commit the transaction");
+			e.printStackTrace();
+		}
+	}
+	
+	public void autoCommitOn() {
+		try {
+			conn.setAutoCommit(true);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Something went wrong when trying to set autocommit on");
+			e.printStackTrace();
+		}
 	}
 }

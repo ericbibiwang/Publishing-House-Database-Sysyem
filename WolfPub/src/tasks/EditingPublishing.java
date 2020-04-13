@@ -327,9 +327,10 @@ public class EditingPublishing {
 		String updatePeriod = "UPDATE NonBook SET Period="+period+" WHERE PublicationID="+issn;
 		String deleteTopics = "DELETE FROM PublicationHas WHERE PublicationID="+issn;
 		String topicQuery;
-		
+		WolfPubDb db = null;
 		try {
-			WolfPubDb db = new WolfPubDb();
+			db = new WolfPubDb();
+			db.autoCommitOff();
 			db.createStatement();
 			// 
 			result = db.executeUpdate(updateTitle);
@@ -350,16 +351,27 @@ public class EditingPublishing {
 				 result += db.executeUpdate(topicQuery);
 				 
 			}
-			
+			db.commit();
 			System.out.println("Number of new topics added: "+result);
-			db.close();
+			
 			
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			if(db != null) {
+				db.rollback();
+				System.out.println("Transaction failed. Rolling back the transaction");
+			}
+			
+			
 			e.printStackTrace();
 		}
-				
+		finally {
+			if(db != null) {
+				db.autoCommitOn();
+			}
+			
+		}
 		
 		return 0;
 	}
