@@ -535,12 +535,13 @@ public class Production {
 	}
 	
 	@Command( name = "getBookByISBN", description = " get book by ISBN")
+	// Assume ISBN is the publicationID
 	public static void getBookByISBN(@Parameters( paramLabel = "PublicationID" )	String PublicationID) {
 		try {
 			/* Add query*/
 			StringBuilder sb = new StringBuilder();
-			// TODO: many cases
-			sb.append("SELECT PublicationTitle, PublicationID FROM Publication NATRUAL JOIN Book WHERE PublicationID=").append(PublicationID).append(" AND PublicationType=").append(Book).append(" ;");
+			
+			sb.append("SELECT PublicationTitle, PublicationID FROM Publication NATURAL JOIN Book WHERE PublicationID=").append(PublicationID).append(" AND PublicationType=").append(PublicationType).append(" ;");
 			
 			System.out.println("Try to process " + sb.toString());
 			
@@ -556,15 +557,17 @@ public class Production {
 	}
 
 	@Command ( name = "getBookByAttr", description = "get book by attributes")
-	public static void getBookByAttr(@Parameters( paramLabel = "PublicationID" )	String PublicationID) {
+	public static void getBookByAttr(@Parameters( paramLabel = "PublicationID" )	String PublicationID,
+									 @Option( names = {"-pt", "-publicationDate"}, description = "Book Publication Date")	String PublicationDate,
+									 @Option( names = {"-t", "-publicationType"}, description = "Publication Type")			String PublicationType,
+									 @Option( names = {"-e", "-editionNumber"}, description = "Edition Number")				Double EditionNumber) {
 		try {
 			/* Add query*/
 			StringBuilder sb = new StringBuilder();
-			// TODO: many cases
 			/*
-			 * by publicationTitle, publicationType, editionNumber along with publicationID
+			 * by publicationTitle, publicationType, editionNumber to get related publicationID
 			 */
-			sb.append("");
+			sb.append("SELECT PublicationID FROM Book NATURAL JOIN Publication NATURAL JOIN Edition WHERE PublicationTitle=").append(PublicationTitle).append(" AND PublicationType=").append(PublicationType).append(" AND EditionNumber=").append(EditionNumber).append(" ;");
 			
 			System.out.println("Try to process " + sb.toString());
 			
@@ -579,7 +582,8 @@ public class Production {
 		
 	}
 
-	@Command( name = "enterStaffpayment", description = "enter payment of stuff employee")
+	@Command( name = "enterpayment", description = "enter payment of staff or invited employee")
+	// difference between staff and invited are contractPay and PayPeriod.
 	public static int enterRegularStaffPayment(@Option( names = {"-n", "-name"}, description = "Employee name")			String Name,
 											   @Option( names = {"-c", "-contractPay"}, description = "Contract Pay")	Float Contractpay,
 											   @Option( names = {"p", "-payPeriod"}, description = "Pay Period")		String PayPeriod,
@@ -632,21 +636,30 @@ public class Production {
 		return 0;
 	}
 	
-	// TODO: difference between staff and invited is the contractPay.
-	
-	public static int enterRegularInvitedPayment(String ssn, double amount, String isbn, String issn, String pubDate, String articleTitle) {
-		
-		return 0;
-	}
-	
+	@Command( name = "track", description = "keep track of when each payment was claimed by its address")
+	// Since in schema we have PaymentID associate with payment, we can use PaymentID to track payment with related SSN
 	public static void trackPayment(@Option( names = {"-a", "-amount"}, description = "Payment Amount")			Float Amount,
 									@Option( names = {"-d", "-datePickedUp"}, description = "Date picked Up")	String  dataPcikedUp,
 									@Parameters( paramLabel = "SSN")		String SSN,
 									@Parameters( paramLabel = "PaymentID")	String PaymentID) {
-		
+		try {
+			/* Add query*/
+			StringBuilder sb = new StringBuilder();
+			
+			sb.append("SELECT PaymentID, DatePickedUp FROM Payment WHERE SSN=").append(SSN).append(" ;");
+			
+			System.out.println("Try to process " + sb.toString());
+			
+			/* Execute query*/
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQuery(sb.toString());	
+			} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}
 		
 	}
 	
-
-
+	
 }
