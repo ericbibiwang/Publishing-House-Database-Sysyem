@@ -23,6 +23,7 @@ public class WolfPubDb implements AutoCloseable {
 
 	Connection conn = null;
 	Statement statement = null;
+	PreparedStatement ps = null;
 	ResultSet rs = null;
 
 	public ResultSet getRs() {
@@ -48,6 +49,7 @@ public class WolfPubDb implements AutoCloseable {
 		this.conn = conn;
 		this.statement = statement;
 		this.rs = rs;
+		this.ps = null;
 		connect();
 	}
 
@@ -161,7 +163,7 @@ public class WolfPubDb implements AutoCloseable {
 	 * @throws SQLException
 	 */
 	public void prepareStatement(String s) throws SQLException {
-		statement = conn.prepareStatement(s);
+		ps = conn.prepareStatement(s);
 	}
 	
 	/**
@@ -267,5 +269,29 @@ public class WolfPubDb implements AutoCloseable {
 	 */
 	public int executeUpdate(String s) throws SQLException {
 		return statement.executeUpdate(s);
+	}
+
+	/**
+	 * Passthrough empty executeUpdate
+	 * @throws SQLException 
+	 */
+	public int executeUpdate() throws SQLException {
+		return ps.executeUpdate();
+	}
+	
+	public void setString(int parameterIndex, String s) throws SQLException {
+		ps.setString(parameterIndex, s);
+	}
+	
+	public void setInt(int parameterIndex, int i) throws SQLException {
+		ps.setInt(parameterIndex, i);
+	}
+	
+	public void setDate(int parameterIndex, Date d) throws SQLException {
+		ps.setDate(parameterIndex, d);
+	}
+
+	public void addBatch() throws SQLException {
+		ps.addBatch();
 	}
 }

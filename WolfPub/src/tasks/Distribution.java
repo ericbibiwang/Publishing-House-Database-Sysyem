@@ -3,13 +3,17 @@ package tasks;
 import java.util.Map;
 import java.util.Vector;
 
+import de.vandermeer.asciitable.AsciiTable;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-import picocli.CommandLine.ArgGroup;
 import wolfpub.WolfPub;
+import wolfpub.WolfPubDb;
 
 import java.sql.*;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 
 @Command(name = "distributor", 
 		 description = "Manage distributors and their orders"
@@ -94,7 +98,7 @@ public class Distribution {
 		System.out.println("Try to process " + sb.toString());
 		
 		try {
-			wolfpub.WolfPubDb db = WolfPub.getDb();
+			WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
 			db.executeUpdate(sb.toString());	
 		} catch (SQLException e) {
@@ -135,10 +139,7 @@ public class Distribution {
 											@Option( names = {"-new_zip"}, description = "New zip") 					String newZip,
 											@Parameters( paramLabel = "Street Address" ) String addr,
 											@Parameters( paramLabel = "City" ) String city,
-											@Parameters( paramLabel = "Zip" ) String zip) {
-		Vector<String> columns = new Vector<String>();
-		Vector<String> values = new Vector<String>();
-		
+											@Parameters( paramLabel = "Zip" ) String zip) {		
 		if (name == null && type == null && phoneNumber == null && contactPerson == null && balance == null && state == null &&
 				newAddr == null && newCity == null && newZip == null) {
 			System.out.println("Nothing to update");
@@ -181,7 +182,7 @@ public class Distribution {
 		System.out.println("Try to process " + sb.toString());
 		
 		try {
-			wolfpub.WolfPubDb db = WolfPub.getDb();
+			WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
 			db.executeUpdate(sb.toString());
 		} catch (SQLException e) {
@@ -214,7 +215,7 @@ public class Distribution {
 
 		System.out.println("Try to process " + sb.toString());
 		try {
-			wolfpub.WolfPubDb db = WolfPub.getDb();
+			WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
 			db.executeUpdate(sb.toString());
 		} catch (SQLException e) {
@@ -239,15 +240,17 @@ public class Distribution {
 	 * @return
 	 */
 	@Command(name = "order", description = "Enter and update orders")
-	public static int inputOrder(@Option( names = {"-o", "-order"}, description = "Existing order number to update") 		String orderID,
-								 @Option( names = {"-b", "-isbn"}, description = "Include books with their counts") 		Map<String, Integer> books,
-								 @Option( names = {"-p", "-issn"}, description = "Include periodicals with their counts") 	Map<String, Integer> periodicals,
-								 @Option( names = {"-d", "-date"}, description = "Date of order") 							Date orderDate,
-								 @Option( names = {"-s", "-shipcost"}, description = "Shipping costs") 						Double shippingCost,
-								 @Option( names = {"-addr"}, description = "Distributor's Street Address" ) 				String addr,
-								 @Option( names = {"-city"}, description = "Distributor's City" ) 							String city,
-								 @Option( names = {"-zip"}, description = "Distributor's Zip" ) 							String zip) {
+	public static int inputOrder(@Option( names = {"-o", "-order"}, description = "Existing order number to update") String orderID,
+								 @Option( names = {"-b", "-isbn"}, split=",", description = "Include books with their counts") Map<String, Integer> books,
+								 @Option( names = {"-p", "-issn"}, split=",", description = "Include periodicals with their counts. <ISSN>|<Issue Date>=<#copies>") Map<String, Integer> periodicals,
+								 @Option( names = {"-d", "-date"}, description = "Date of order") Date orderDate,
+								 @Option( names = {"-s", "-shipcost"}, description = "Shipping costs") Double shippingCost,
+								 @Option( names = {"-addr"}, description = "Distributor's Street Address" ) String addr,
+								 @Option( names = {"-city"}, description = "Distributor's City" ) String city,
+								 @Option( names = {"-zip"}, description = "Distributor's Zip" ) String zip) {
 		StringBuilder sb = new StringBuilder();
+		int retval = 0;
+		
 		/* If one of the distributor's key values are non-null but another is null, drop the command */
 		if ((addr != null || city != null || zip != null) && 
 			(addr == null || city == null || zip == null)) {
@@ -255,15 +258,24 @@ public class Distribution {
 			return 1;
 		}
 		
+		/* No action requested */
 		if (books == null && periodicals == null) {
 			System.out.println("Specify a book edition with -b(-isbn) or a periodical issue with -p(-issn) with format <id>=<#copies>");
 			return 1;
 		}
 		
-		wolfpub.WolfPubDb db = WolfPub.getDb();
+		/* If neither Distributor address or order ID are given, we have nothing to update or insert */
+		/* Check for null address is enough to check all three address parts given first check in this method */ 
+		if (orderID == null && addr == null) {
+			System.out.println("Either a distributor's address (-addr, -city, -zip) or an order id(-o) must be specified.");
+			return 1;
+		}
+		
+		WolfPubDb db = WolfPub.getDb();
 		
 		/* If distributor address and order id are both provided, check that the order is indeed the distributor's */
-		if (addr != null && city != null && zip != null && orderID != null)
+		/* Check for non-null address is enough to check all three address parts given first check in this method */
+		if (addr != null && orderID != null)
 		{
 			sb.append("SELECT * FROM OrderTable WHERE OrderID='" + orderID + "' AND StreetAddr='" + addr + 
 					"' AND City='" + city + "' AND Zip='" + zip + "';");
@@ -280,33 +292,101 @@ public class Distribution {
 			}
 		}
 		
-		/* TODO If an order has been delivered (can we/do we need to check for this?) or paid for, do not allow changes to the order */ 
-		
 		sb.setLength(0);
-		sb.append("SELECT EXISTS(SELECT 1 FROM OrderTable WHERE OrderID=" + orderID);
+		sb.append("SELECT EXISTS(SELECT 1 FROM OrderTable WHERE OrderID=" + orderID + ");");
 		try {
 			db.createStatement();
-			if (0 == db.executeQuery(sb.toString())) {
-				System.out.printf("No order %s found for given distributor", orderID);
-				return 1;
+			db.executeQuery(sb.toString());
+			
+			ResultSet rs = db.getRs();
+		
+			/* If an order ID exists, update it */
+			/* If an order ID does not exist, create a new order with an autoincremented ID. */
+			if (rs.next() == false) {
+				/* No matching orderID found, let WolfPubDB autoincrement the ID */
+				if (addr == null) {
+					System.out.println("No order with id " + orderID + " found. Provide a distributor address to create a new order.");
+					return 1;
+				}
+				
+				/* Create new Order */
+				/* TODO Consider a transaction here */
+				sb.setLength(0);
+				sb.append("INSERT INTO OrderTable(StreetAddr,City,Zip) VALUES (");
+				sb.append("'" + addr + "','" + city + "','" + zip + ");");
+				
+				//db.createStatement();
+				if (0 == db.executeUpdate(sb.toString()))
+				{
+					System.out.println("No rows updated in order table");
+					return 1;
+				}
+				
+				/* Get new Order ID */
+				//db.createStatement();
+				db.executeQuery("SELECT LAST_INSERT_ID();");
+				rs = db.getRs();
+				if (rs.next()) {
+					orderID = Integer.toString(rs.getInt(1));
+				}
+				else {
+					System.out.println("Could not get autoincremented order ID");
+					return 1;
+				}
 			}
+			
+
+			/* Set order date and shipping costs */
+			sb.setLength(0);
+			sb.append("UPDATE OrderTable SET Date = ");
+			if (orderDate == null) {
+				sb.append(java.sql.Date.from(Instant.now()).toString());
+			} else {
+				sb.append(orderDate.toString());
+			}
+			sb.append(", ShippingCost = ").append(shippingCost == null ? "0" : shippingCost.toString()).append(";");
+			
+			/* Update Order contents */
+			db.prepareStatement("INSERT INTO OrderContainsEdition (OrderID, ISBN, NumOfCopies, Price) " + 
+					"SELECT ? , ? , ? , EditionPrice FROM Edition WHERE ISBN= ? ON DUPLICATE KEY UPDATE;");
+			for (Map.Entry<String, Integer> entry : books.entrySet()) {
+				db.setInt(1, Integer.valueOf(orderID));
+				db.setString(2, entry.getKey());
+				db.setInt(3, Integer.valueOf(entry.getValue()));
+				db.setString(5, entry.getKey());
+				db.addBatch();
+			};
+			
+			db.prepareStatement("INSERT INTO OrderContainsIssue (OrderID, PublicationID, IssueDate, NumOfCopies, Price) " +
+								" SELECT ? , ? , ? , ?, Price FROM Issue WHERE ISSN= ? ON DUPLICATE KEY UPDATE;");
+			for (Map.Entry<String, Integer> entry : periodicals.entrySet()) {
+				if (!entry.getKey().contains("|")) {
+					throw new Exception("Identify periodicals with id, issue date, and number of copies: 12345678|2020-01-01=5");
+				}
+				db.setInt(1, Integer.valueOf(orderID));
+				db.setString(2, entry.getKey().split("|")[0]);
+				db.setDate(3, Date.valueOf(entry.getKey().split("|")[1]));
+				db.setInt(4, Integer.valueOf(entry.getValue()));
+				db.setString(6, entry.getKey().split("|")[0]);
+				db.addBatch();
+			};
+			db.executeUpdate();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			/* TODO rollback transaction */
 			e.printStackTrace();
-			return 1;
+			retval = 1;
+		} catch (Exception e) {
+			/* TODO rollback transaction */
+			System.err.println(e);
+			retval = 1;
+		} finally {
+			/* TODO */
 		}
-		/* If an order ID exists, update it */
 		
-		/* If an order ID does not exist, create a new autoincremented value. */
-		
-		/* If an order ID exists and the given publicationId is already in it,
-		 * then update the number of copies in OrderContains.. table with ON DUPLICATE KEY UPDATE */
-		
-		/* If an order ID exists and the given publicationId is already in it, AND the number of copies is 0,
-		 * then remove it from the order */
-		
-		return 0;
+		return retval;
 	}
+	
+	private static String billHeader = new String("WolfPub Publishing House\n" + "5555 Publishing Lane\n" + "Raleigh, NC 27602");
 	
 	/**
 	 * Command "wolfpub distributor bill"
@@ -318,7 +398,72 @@ public class Distribution {
 	public static int billOrder(@Parameters( paramLabel = "Order ID" ) String orderID) {
 		/* Generate a bill for the distributor based on Order ID*/
 
-		System.out.println("TODO: Generate a bill for order id " + orderID);
+		try {
+			WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQuery("SELECT EXISTS(SELECT 1 FROM OrderTable WHERE OrderID=" + orderID + ");");
+			ResultSet rs = db.getRs();
+			NumberFormat nf = NumberFormat.getCurrencyInstance();
+			Double subtotal = 0.0;
+			Double total = 0.0;
+			
+			if (rs.next()) {
+				AsciiTable bill = new AsciiTable();
+				
+				/* Build the bill header */
+				bill.addRule();
+				bill.addRow(billHeader);
+				bill.addRow("Bill for order " + orderID + " generated on " + new SimpleDateFormat().format(Date.from(Instant.now())));
+				bill.addRule();
+				/* Build the book section */
+				bill.addRow("Books: Title", "Edition", "ISBN", "Copies", "Unit Price", "Price");
+				db.executeQuery("SELECT PublicationTitle, EditionNumber, ISBN, NumOfCopies, o.Price "
+							  + "FROM OrderContainsEdition o NATURAL JOIN Edition NATURAL JOIN Publication "
+							  + "WHERE OrderID=" + orderID + ";");
+				rs = db.getRs();
+				while (rs.next()) {
+					Double price = rs.getInt("NumOfCopies") * rs.getDouble("o.Price");
+					bill.addRow(rs.getString("PublicationTitle"),
+							    rs.getString("EditionNumber"),
+							    rs.getString("ISBN"),
+							    rs.getString("NumOfCopies"),
+							    nf.format(Double.valueOf(rs.getString("o.Price"))),
+							    nf.format(price));
+					subtotal += price;
+				}
+				bill.addRow("Book subtotal: " + nf.format(subtotal));
+				total += subtotal;
+				subtotal = 0.0;
+				bill.addRule();
+				/* Build the periodical section */
+				bill.addRow("Non-books: Title", "Issue Date", "Copies", "Total Price");
+				db.executeQuery("SELECT PublicationTitle, IssueDate, NumOfCopies, o.Price");
+				rs = db.getRs();
+				while (rs.next()) {
+					Double price = rs.getInt("NumOfCopies") * rs.getDouble("o.Price");
+					bill.addRow(rs.getString("PublicationTitle"),
+								rs.getString("IssueDate"),
+								rs.getString("numOfCopies"),
+								nf.format(Double.valueOf(rs.getString("o.Price"))),
+								nf.format(price));
+					subtotal += price;
+				}
+				bill.addRow("Non-book subtotal: " + nf.format(subtotal));
+				/* Print the total */
+				total += subtotal;
+				bill.addRow("Bill total: " + nf.format(total));
+				bill.addRule();
+				db.executeUpdate("UPDATE Distributor SET Balance += " + total + " WHERE(StreetAddr,City,Zip) IN " +
+								 "(SELECT StreetAddr,City,Zip FROM OrderTable WHERE OrderID=" + orderID + ");");
+				System.out.println(bill.render());
+			} else {
+				System.out.printf("No Order %s found", orderID);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 1;
+		}
 		return 0;
 	}
 	
@@ -333,11 +478,20 @@ public class Distribution {
 	 * @return
 	 */
 	@Command(name = "pay", description = "Record a payment from or credit to a distributor.")
-	public static int recordPayment(@Option( names = {"-b", "-balance"}, description = "Starting balance") 	Double newBalance,
-									@Option( names = {"-s", "-state"}, description = "State") 				String state,
+	public static int recordPayment(@Option( names = {"-p", "-paid"}, description = "Amount paid") Double payAmount,
 									@Parameters( paramLabel = "Street Address" ) String addr,
 									@Parameters( paramLabel = "City" ) String city,
 									@Parameters( paramLabel = "Zip" ) String zip) {
+		try {
+			WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeUpdate("UPDATE Distributor SET Balance -= " + payAmount.toString() + 
+							" WHERE StreetAddr='" + addr + "' AND City='" + city + "' AND Zip='" + zip + "';");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 1;
+		}
 		
 		return 0;
 	}
