@@ -11,14 +11,15 @@ import de.vandermeer.asciitable.AsciiTable;
  * @author schristo
  */
 public class WolfPubDb implements AutoCloseable {
-	//static final String jdbcURL = "jdbc:mariadb://classdb2.csc.ncsu.edu:3306/cdsuh";
+	static final String jdbcURL = "jdbc:mariadb://classdb2.csc.ncsu.edu:3306/cdsuh";
 
-	//static String user = "cdsuh";
-	//static String passwd = "csc540601";
+	static String user = "cdsuh";
+	static String passwd = "csc540601";
 	
-	static final String jdbcURL = "jdbc:mysql://localhost:3306/project";
-	static String user = "root";
-	static String passwd = "U/;wn|p[4@";
+	//static final String jdbcURL = "jdbc:mysql://localhost:3306/project";
+	
+	//static String user = "root";
+	//static String passwd = "U/;wn|p[4@";
 
 	Connection conn = null;
 	Statement statement = null;
