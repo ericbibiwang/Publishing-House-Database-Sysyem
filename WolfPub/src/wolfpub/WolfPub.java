@@ -42,7 +42,12 @@ public class WolfPub implements Runnable {
 	/**
 	 * @param args Parsed by picocli.
 	 */
+	
+	
 	public static void main(String[] args) {
+		
+		
+		
 		try {
 			db = new WolfPubDb();
 		} catch (SQLException e) {
@@ -104,6 +109,8 @@ public class WolfPub implements Runnable {
 	 * Print longer help text
 	 */
 	public void longHelp() {
+		
+
 		System.out.println("Stub for help output longer than normal usage");
 	}
 
