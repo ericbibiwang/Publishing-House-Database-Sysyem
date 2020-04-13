@@ -1,12 +1,9 @@
 package tasks;
 
-import java.sql.Date;
 import java.sql.SQLException;
 
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Parameters;
 import wolfpub.WolfPubDb;
 
 @Command(name = "publish", 
