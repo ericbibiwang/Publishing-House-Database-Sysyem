@@ -10,7 +10,7 @@ import wolfpub.WolfPub;
 
 @Command( name = "production", description = "Production processes")
 public class Production {
-	private static String BookTableName = "Edition";
+	private static String EditionTableName = "Edition";
 	private static String IssueTableName = "Issue";
 	
 	/**
@@ -18,15 +18,15 @@ public class Production {
 	 * Create a production with WolfPub
 	 * 
 	 * @param isbn
-	 * @param pubID
+	 * @param PublicationID
 	 * @param issueDate
 	 * @param articleTitle
-	 * @param chapterNum
-	 * @param sectionNum
+	 * @param chapterNumber
+	 * @param sectionNumber
 	 * @param topicName
 	 * 
-	 * @param editionNum
-	 * @param pubDate
+	 * @param editionNumber
+	 * @param publicationDate
 	 * @param editionPrice
 	 * @param price
 	 * @param issueTitle
@@ -36,7 +36,7 @@ public class Production {
 	 * @return
 	 */
 	
-	/* To enter a new edition of a book, need to enter a new book, a new publication (foreign key constraints) */
+	/* Tested. To enter a new edition of a book, need to enter a new book, a new publication first (foreign key constraints) */
 	@Command(name = "newEdition", description = "Enter information for a book edition")
 	public static int enterBookEdition(@Option( names = {"-p", "-PublicationID"}, required = true, description = "Book edition publicationID") String PublicationID,
 									   @Option( names = {"-e", "-editionNumber"}, defaultValue = "0", description = "Book edition number") Double editionNumber,
@@ -71,7 +71,7 @@ public class Production {
 			
 			/* Build query */
 			StringBuilder sb = new StringBuilder();
-			sb.append("INSERT INTO ").append(BookTableName).append(" (");
+			sb.append("INSERT INTO ").append(EditionTableName).append(" (");
 			for (String col : columns) {
 				sb.append(col).append(",");
 			}
