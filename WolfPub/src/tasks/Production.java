@@ -7,6 +7,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import wolfpub.WolfPub;
+import wolfpub.WolfPubDb;
 
 @Command( name = "production", description = "Production processes")
 public class Production {
@@ -147,7 +148,7 @@ public class Production {
 				columns.add("issueTitle");
 				values.add(issueTitle);
 			}
-			if (price != null) {
+			if (Price != null) {
 				columns.add("Price");
 				values.add(String.format("%.2f", Price));
 			}
@@ -189,8 +190,8 @@ public class Production {
 		if (issueTitle != null) {
 			System.out.println("issueTitle: " + issueTitle);
 		}
-		if (price != null) {
-			System.out.println("price: " + price);
+		if (Price != null) {
+			System.out.println("price: " + Price);
 		}
 		
 		return 0;
@@ -221,9 +222,9 @@ public class Production {
 	
 	@Command(name = "enterArticle", description = "enter a article or enter article text into database")
 	public static int enterArticle( @Option( names = {"-a", "-articleText"}, required = true, description = "Article text")	String ArticleText,
-									@Paramters( paramLabel = "PublicationID")	String PublicationID,
-									@Paramters( paramLabel = "Issue Date")		String IssueDate,
-									@Paramters( paramLabel = "Article Title")	String ArticleTitle) {
+									@Parameters( paramLabel = "PublicationID")	String PublicationID,
+									@Parameters( paramLabel = "Issue Date")		String IssueDate,
+									@Parameters( paramLabel = "Article Title")	String ArticleTitle) {
 		Vector<String> columns = new Vector<String>();
 		Vector<String> values = new Vector<String>();
 		
@@ -242,7 +243,7 @@ public class Production {
 		}
 		/* Build the update string */
 		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO ").append(articleTableName).append(" (");
+		sb.append("INSERT INTO ").append(ArticleTableName).append(" (");
 		for (String col : columns) {
 			sb.append(col).append(",");
 		}
@@ -267,11 +268,11 @@ public class Production {
 		return 0; // decide on the appropriate return type; either return a tuple or print to stdout
 	}
 	
-	@Command( name = "updateArticle", desciption = "update article or article text")
+	@Command( name = "updateArticle", description = "update article or article text")
 	public static int updateArticle( @Option( names = {"-a", "-articleText"}, required = true, description = "Article text")	String ArticleText,
-									 @Paramters( paramLabel = "PublicationID")	String PublicationID,
-									 @Paramters( paramLabel = "Issue Date")		String IssueDate,
-									 @Paramters( paramLabel = "Article Title")	String ArticleTitle) {
+									 @Parameters( paramLabel = "PublicationID")	String PublicationID,
+									 @Parameters( paramLabel = "Issue Date")		String IssueDate,
+									 @Parameters( paramLabel = "Article Title")	String ArticleTitle) {
 		
 		System.out.println("TODO: Attempt to update article " + PublicationID + " " + IssueDate + ArticleTitle + " with");
 		
@@ -285,8 +286,8 @@ public class Production {
 	
 	@Command( name = "enterChapter", description = "enter a chapter into database")
 	public static int enterChapter(@Option( names = {"-c", "-chapterTitle"}, required = true, description = "Chapter Title")	String chapterTitle,
-								   @Paramters( paramLabel = "ISBN")			 String isbn,
-								   @Paramters( paramLabel = "ChapterNumber") String ChapterNumber){
+								   @Parameters( paramLabel = "ISBN")			 String isbn,
+								   @Parameters( paramLabel = "ChapterNumber") String ChapterNumber){
 		
 		Vector<String> columns = new Vector<String>();
 		Vector<String> values = new Vector<String>();
@@ -331,8 +332,8 @@ public class Production {
 	
 	@Command( name = "updateChapter", description = "update chapter")
 	public static int updateChapter(@Option( names = {"-c", "-chapterTitle"}, required = true, description = "Chapter Title")	String chapterTitle,
-									@Paramters( paramLabel = "ISBN")		  String isbn,
-									@Paramters( paramLabel = "ChapterNumber") String ChapterNumber) {
+									@Parameters( paramLabel = "ISBN")		  String isbn,
+									@Parameters( paramLabel = "ChapterNumber") String ChapterNumber) {
 		
 		System.out.println("TODO: Attempt to update chapter " + isbn + " " + ChapterNumber + " with");
 		
@@ -346,7 +347,7 @@ public class Production {
 	
 	@Command( name = "enterTopic", description = "enter topic into publications")
 	public static int enterTopic(@Parameters( paramLabel = "TopicName")		String TopicName,
-											   @Parameters( paramLabel = "PublicationID")	String PublicationID) {
+								 @Parameters( paramLabel = "PublicationID")	String PublicationID) {
 		Vector<String> columns = new Vector<String>();
 		Vector<String> values = new Vector<String>();
 		
@@ -438,7 +439,7 @@ public class Production {
 		return 0; // decide on the appropriate return type; either return a tuple or print to stdout
 	}
 	
-	@Command( name = "updateAuthorOrDatetoArticle", description = "update author or date information to article with table WritesArticle"))
+	@Command( name = "updateAuthorOrDatetoArticle", description = "update author or date information to article with table WritesArticle")
 	public static int updateAuthortoArticle(@Parameters( paramLabel = "AuthorSSN")		String AuthorSSN,
 										    @Parameters( paramLabel = "PublicationID")	String PublicationID,
 										    @Parameters( paramLabel = "IssueDate")		String IssueDate,
@@ -482,8 +483,8 @@ public class Production {
 	
 
 	@Command( name = "getIssueByDate", description = "find issue with IssueDate")
-	public static void getPublicationIssueByPubID(@Parameters( paramLabel = "PublicationID" )	String PublicationID,
-												  @Parameters( paramLabel = "IssueDate" )		String IssueDate) {
+	public static void getPublicationIssueByDate(@Parameters( paramLabel = "PublicationID" )	String PublicationID,
+												 @Parameters( paramLabel = "IssueDate" )		String IssueDate) {
 		try {
 			Vector<String> columns = new Vector<String>();
 			Vector<String> values = new Vector<String>();
@@ -536,7 +537,8 @@ public class Production {
 	
 	@Command( name = "getBookByISBN", description = " get book by ISBN")
 	// Assume ISBN is the publicationID
-	public static void getBookByISBN(@Parameters( paramLabel = "PublicationID" )	String PublicationID) {
+	public static void getBookByISBN(@Parameters( paramLabel = "PublicationID" )	String PublicationID,
+									 @Option( names = {"-p", "-PublicationType"}, required = true, description = "Publication Type")	String PublicationType) {
 		try {
 			/* Add query*/
 			StringBuilder sb = new StringBuilder();
@@ -558,9 +560,10 @@ public class Production {
 
 	@Command ( name = "getBookByAttr", description = "get book by attributes")
 	public static void getBookByAttr(@Parameters( paramLabel = "PublicationID" )	String PublicationID,
-									 @Option( names = {"-pt", "-publicationDate"}, description = "Book Publication Date")	String PublicationDate,
+									 @Option( names = {"-pd", "-publicationDate"}, description = "Book Publication Date")	String PublicationDate,
 									 @Option( names = {"-t", "-publicationType"}, description = "Publication Type")			String PublicationType,
-									 @Option( names = {"-e", "-editionNumber"}, description = "Edition Number")				Double EditionNumber) {
+									 @Option( names = {"-e", "-editionNumber"}, description = "Edition Number")				Double EditionNumber,
+									 @Option( names = {"-pt", "-PublicationTitle"}, description = "Publication Title")		String PublicationTitle) {
 		try {
 			/* Add query*/
 			StringBuilder sb = new StringBuilder();
