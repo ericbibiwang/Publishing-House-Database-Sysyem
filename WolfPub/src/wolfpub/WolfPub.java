@@ -21,11 +21,16 @@ import tasks.*;
 @Command(name = "wolfpub", sortOptions = false, header = "@|blue WolfPub Publishing House|@", description = {
 		"", "Edit, Publish, and Order publications", }, optionListHeading = "@|bold %nOptions|@:%n",
 				subcommands = {
+<<<<<<< HEAD
 						Distribution.class,
 						EditingPublishing.class,
 						/*
+=======
+						Distribution.class,/*
+						EditingPublishing.class */
+>>>>>>> refs/remotes/origin/master
 						Production.class,
-						Reports.class	*/					
+						Reports.class						
 				})
 public class WolfPub implements Runnable {
 	private static WolfPubDb db = null;
