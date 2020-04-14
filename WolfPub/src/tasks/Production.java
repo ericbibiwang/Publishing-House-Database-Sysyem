@@ -591,15 +591,38 @@ public class Production {
 	}
 	
 	@Command( name = "getArticleByAttr", description = "get article by attributes")
-	public static void getArticleByAttr(@Parameters( paramLabel = "AuthorSSN" )		String AuthorSSN,
-										@Parameters( paramLabel = "PublicationID" )	String PublicationID,
-										@Parameters( paramLabel = "IssueDate" )		String IssueDate,
-										@Parameters( paramLabel = "ArticleTitle" )	String ArticleTitle) {
+	public static void getArticleByAttr(@Option( names = "-author", description = "name of author", paramLabel = "AuthorSSN" ) String AuthorSSN,
+										@Option( names = "-issn", description = "ISSN of publication", paramLabel = "PublicationID" ) String PublicationID,
+										@Option( names = "-issued", description = "Date article was published", paramLabel = "IssueDate" ) String IssueDate,
+										@Option( names = "-article_title", description = "title of article", paramLabel = "ArticleTitle" ) String ArticleTitle) {
+		if (AuthorSSN == null && PublicationID == null && IssueDate == null&& ArticleTitle == null) {
+			System.err.println("Search by -author, -issn, -issued, or -article_title");
+		}
 		try {
+			boolean andit = false;
 			/* Add query*/
 			StringBuilder sb = new StringBuilder();
 			// TODO: many cases
-			sb.append("SELECT AuthorSSN, PublicationID, IssueDate, ArticleTitle FROM Article WHERE PublicationID=").append(PublicationID).append(" AND IssueDate=").append(IssueDate).append(" AND ArticleTitle=").append(ArticleTitle).append(" ;");
+			sb.append("SELECT * FROM Article WHERE ");
+			if (PublicationID != null) {
+				sb.append("PublicationID='" + PublicationID + "'");
+				andit = true;
+			}
+			if (AuthorSSN != null) {
+				if(andit) sb.append(" AND ");
+				sb.append("AuthorSSN='" + AuthorSSN + "'");
+				andit=true;
+			}
+			if (IssueDate != null) {
+				if(andit) sb.append(" AND ");
+				sb.append("IssueDate='" + IssueDate + "'");
+				andit=true;
+			}
+			if (ArticleTitle != null) {
+				if(andit) sb.append(" AND ");
+				sb.append("ArticleTitle='" + ArticleTitle + "'");
+			}
+			sb.append(";");
 			
 			System.out.println("Try to process " + sb.toString());
 			
@@ -607,10 +630,10 @@ public class Production {
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
 			db.executeQueryAndPrintResults(sb.toString());	
-			} catch (SQLException e) {
+		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			}
+		}
 	}
 	
 	@Command( name = "getBookByISBN", description = " get book by ISBN")
@@ -637,18 +660,38 @@ public class Production {
 	}
 
 	@Command ( name = "getBookByAttr", description = "get book by attributes")
-	public static void getBookByAttr(@Parameters( paramLabel = "PublicationID" )	String PublicationID,
-									 @Option( names = {"-pd", "-publicationDate"}, description = "Book Publication Date")	String PublicationDate,
-									 @Option( names = {"-t", "-publicationType"}, description = "Publication Type")			String PublicationType,
-									 @Option( names = {"-e", "-editionNumber"}, description = "Edition Number")				Double EditionNumber,
-									 @Option( names = {"-pt", "-PublicationTitle"}, description = "Publication Title")		String PublicationTitle) {
+	public static void getBookByAttr(@Option( names = "-publicationDate", description = "Book Publication Date", paramLabel = "PublicationDate")	String PublicationDate,
+									 @Option( names = "-publicationType", description = "Publication Type", paramLabel = "publicationType")			String PublicationType,
+									 @Option( names = "-editionNumber", description = "Edition Number", paramLabel = "EditionNumber")				Double EditionNumber,
+									 @Option( names = "-PublicationTitle", description = "Publication Title", paramLabel = "PublicationTitle")		String PublicationTitle) {
+		if (PublicationDate == null && PublicationType == null && EditionNumber == null && PublicationTitle == null) {
+			System.err.println("Search by -author, -issn, -issued, or -article_title");
+		}
 		try {
+			boolean andit = false;
 			/* Add query*/
 			StringBuilder sb = new StringBuilder();
-			/*
-			 * by publicationTitle, publicationType, editionNumber to get related publicationID
-			 */
-			sb.append("SELECT PublicationID FROM Book NATURAL JOIN Publication NATURAL JOIN Edition WHERE PublicationTitle=").append(PublicationTitle).append(" AND PublicationType=").append(PublicationType).append(" AND EditionNumber=").append(EditionNumber).append(" ;");
+			// TODO: many cases
+			sb.append("SELECT * FROM Article WHERE ");
+			if (PublicationDate != null) {
+				sb.append("PublicationDate='" + PublicationDate + "'");
+				andit = true;
+			}
+			if (PublicationType != null) {
+				if(andit) sb.append(" AND ");
+				sb.append("PublicationType='" + PublicationType + "'");
+				andit=true;
+			}
+			if (EditionNumber != null) {
+				if(andit) sb.append(" AND ");
+				sb.append("EditionNumber='" + EditionNumber + "'");
+				andit=true;
+			}
+			if (PublicationTitle != null) {
+				if(andit) sb.append(" AND ");
+				sb.append("PublicationTitle='" + PublicationTitle + "'");
+			}
+			sb.append(";");
 			
 			System.out.println("Try to process " + sb.toString());
 			
@@ -656,15 +699,15 @@ public class Production {
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
 			db.executeQueryAndPrintResults(sb.toString());	
-			} catch (SQLException e) {
+		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			}
-		
+		}
 	}
 
 	@Command( name = "enterpayment", description = "enter payment of staff or invited employee")
 	// difference between staff and invited are contractPay and PayPeriod.
+	// add contractPay is 0 then (s)he is an invited employee.
 	public static int enterRegularStaffPayment(@Option( names = {"-n", "-name"}, description = "Employee name")			String Name,
 											   @Option( names = {"-c", "-contractPay"}, description = "Contract Pay")	Float Contractpay,
 											   @Option( names = {"p", "-payPeriod"}, description = "Pay Period")		String PayPeriod,
@@ -717,7 +760,7 @@ public class Production {
 		return 0;
 	}
 	
-	@Command( name = "track", description = "keep track of when each payment was claimed by its address")
+	@Command( name = "track", description = "keep track of when each payment was claimed by its PaymentID")
 	// Since in schema we have PaymentID associate with payment, we can use PaymentID to track payment with related SSN
 	public static void trackPayment(@Option( names = {"-a", "-amount"}, description = "Payment Amount")			Float Amount,
 									@Option( names = {"-d", "-datePickedUp"}, description = "Date picked Up")	String  dataPcikedUp,
