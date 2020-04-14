@@ -309,7 +309,7 @@ public class Production {
 	
 	/* description: update article
 	 * Check MySQLWorkbench results after run configuration as follow: production updateArticle 5 2020-05-01 test5 -a updateText
-	 * Test passed.
+	 * TODO: test update
 	 */
 	@Command( name = "updateArticle", description = "update article or article text")
 	public static int updateArticle( @Option( names = {"-a", "-articleText"}, required = true, description = "Article text")	String ArticleText,
@@ -326,7 +326,12 @@ public class Production {
 		return 0;
 	}
 	
+	/* description: enter an chapter to an exist book which publicationID is 1234567890
+	 * Check MySQLWorkbench results after run configuration as follow: production enterChapter 1234567890 5 -c title
+	 * Test passed.
+	 */
 	
+	// here we assume isbn is the publicationID
 	@Command( name = "enterChapter", description = "enter a chapter into database")
 	public static int enterChapter(@Option( names = {"-c", "-chapterTitle"}, required = true, description = "Chapter Title")	String chapterTitle,
 								   @Parameters( paramLabel = "ISBN")			 String isbn,
@@ -373,6 +378,10 @@ public class Production {
 		return 0; // decide on the appropriate return type; either return a tuple or print to stdout
 	}
 	
+	/* description: update chapter
+	 * Check MySQLWorkbench results after run configuration as follow: production updateChapter 1234567890 5 -c updateTitle
+	 * TODO: test update
+	 */
 	@Command( name = "updateChapter", description = "update chapter")
 	public static int updateChapter(@Option( names = {"-c", "-chapterTitle"}, required = true, description = "Chapter Title")	String chapterTitle,
 									@Parameters( paramLabel = "ISBN")		  String isbn,
