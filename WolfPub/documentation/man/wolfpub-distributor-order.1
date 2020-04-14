@@ -1,0 +1,81 @@
+'\" t
+.\"     Title: wolfpub-distributor-order
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 1.5.8
+.\"      Date: 2020-04-13
+.\"    Manual: Wolfpub Manual
+.\"    Source: 
+.\"  Language: English
+.\"
+.TH "WOLFPUB\-DISTRIBUTOR\-ORDER" "1" "2020-04-13" "" "Wolfpub Manual"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+wolfpub\-distributor\-order \- Enter and update orders
+.SH "SYNOPSIS"
+.sp
+\fBwolfpub distributor order\fP [\fB\-addr\fP=\fI<arg5>\fP] [\fB\-city\fP=\fI<arg6>\fP] [\fB\-d\fP=\fI<arg3>\fP] [\fB\-o\fP=\fI<arg0>\fP]
+[\fB\-s\fP=\fI<arg4>\fP] [\fB\-zip\fP=\fI<arg7>\fP] [\fB\-b\fP=\fI<String=Integer>\fP[,
+\fI<String=Integer>\fP...]]... [\fB\-p\fP=\fI<String=Integer>\fP[,
+\fI<String=Integer>\fP...]]...
+.SH "DESCRIPTION"
+.sp
+Enter and update orders
+.SH "OPTIONS"
+.sp
+\fB\-addr\fP=\fI<arg5>\fP
+.RS 4
+Distributor\(cqs Street Address
+.RE
+.sp
+\fB\-b\fP, \fB\-isbn\fP=\fI<String=Integer>\fP[,\fI<String=Integer>\fP...]
+.RS 4
+Include books with their counts
+.RE
+.sp
+\fB\-city\fP=\fI<arg6>\fP
+.RS 4
+Distributor\(cqs City
+.RE
+.sp
+\fB\-d\fP, \fB\-date\fP=\fI<arg3>\fP
+.RS 4
+Date of order
+.RE
+.sp
+\fB\-o\fP, \fB\-order\fP=\fI<arg0>\fP
+.RS 4
+Existing order number to update
+.RE
+.sp
+\fB\-p\fP, \fB\-issn\fP=\fI<String=Integer>\fP[,\fI<String=Integer>\fP...]
+.RS 4
+Include periodicals with their counts. <ISSN>|<Issue Date>=<#copies>
+.RE
+.sp
+\fB\-s\fP, \fB\-shipcost\fP=\fI<arg4>\fP
+.RS 4
+Shipping costs
+.RE
+.sp
+\fB\-zip\fP=\fI<arg7>\fP
+.RS 4
+Distributor\(cqs Zip
+.RE

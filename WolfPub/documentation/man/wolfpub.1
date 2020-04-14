@@ -1,0 +1,74 @@
+'\" t
+.\"     Title: wolfpub
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 1.5.8
+.\"      Date: 2020-04-13
+.\"    Manual: Wolfpub Manual
+.\"    Source: 
+.\"  Language: English
+.\"
+.TH "WOLFPUB" "1" "2020-04-13" "" "Wolfpub Manual"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+wolfpub \- WolfPub Publishing House
+.SH "SYNOPSIS"
+.sp
+\fBwolfpub\fP [\fB\-hl\fP] [\fB\-d\fP=\fItable\fP[,\fItable\fP...]]... [COMMAND]
+.SH "DESCRIPTION"
+.sp
+Edit, Publish, and Order publications
+.SH "OPTIONS"
+.sp
+\fB\-l\fP, \fB\-\-list_tables\fP
+.RS 4
+Connect to wolfPubDb and print a list of tables
+.RE
+.sp
+\fB\-d\fP, \fB\-\-dump_table\fP=\fItable\fP[,\fItable\fP...]
+.RS 4
+Show the contents of any table in the database
+.RE
+.sp
+\fB\-h\fP, \fB\-\-help\fP
+.RS 4
+Display a help message
+.RE
+.SH "COMMANDS"
+.sp
+\fBdistributor\fP
+.RS 4
+Manage distributors and their orders
+.RE
+.sp
+\fBpublish\fP
+.RS 4
+Manage publications
+.RE
+.sp
+\fBproduction\fP
+.RS 4
+Production processes
+.RE
+.sp
+\fBreport\fP
+.RS 4
+Generate reports
+.RE

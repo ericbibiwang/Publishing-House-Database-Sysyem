@@ -1,9 +1,10 @@
-all: dependencies wolfpub
+all: wolfpub
 
-.PHONY: all dependencies
+.PHONY: all clean
 
-dependencies:
-	mvn clean dependency:copy-dependencies
+wolfpub:
+	mvn dependency:copy-dependencies package
 
-wolfpub: dependencies
-	mvn package
+clean:
+	mvn clean
+
