@@ -1,6 +1,6 @@
 package tasks;
 
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Vector;
 
 import picocli.CommandLine.Command;
@@ -29,30 +29,24 @@ public class EditingPublishing {
 	}
 	
 	
-	
 	@Command(name = "enterBook", description = "Enter a new book")
 	public static int enterNewBook(
-			
-			/*
-			 * This task requires following operations:
-			 * 
-			 * 1. Insert the publication value in Publication table
-			 * 2. Insert the publication value in the Book table
-			 * 
-			 */
-			@Option( names = {"-t", "-title"},required=true, description = "Title of the book") String title,
-			@Option( names = {"-i", "-isbn"},required=true, description = "ISBN of the first edition of the book") String isbn,
-			@Option( names = {"-a", "-topic"},required=true, description = "Topics associated with the book", split=",") String[] topics,
-			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
-		
-		
+		/*
+		 * This task requires following operations:
+		 * 
+		 * 1. Insert the publication value in Publication table
+		 * 2. Insert the publication value in the Book table
+		 * 
+		 */
+		@Option( names = {"-t", "-title"},required=true, description = "Title of the book") String title,
+		@Option( names = {"-i", "-isbn"},required=true, description = "ISBN of the first edition of the book") String isbn,
+		@Option( names = {"-a", "-topic"},required=true, description = "Topics associated with the book", split=",") String[] topics,
+		@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 	
 		// enclose all the string variables in single
 		title = EditingPublishing.enclose(title);
 		isbn = EditingPublishing.enclose(isbn);
 		EditingPublishing.enclose(topics);
-		
-		
 				
 		String type = "'Book'";
 		int result;
@@ -61,7 +55,9 @@ public class EditingPublishing {
 		String publicationQuery = String.format(template, "Publication",String.join(",",isbn, title, type));
 		String bookQuery = String.format(template,"Books", isbn);
 		String topicQuery;
-		String deleteTopic = "DELETE FROM Topic WHERE TopicName=%s";
+		String deleteTopic = "SELECT * FROM Topic WHERE TopicName=%s";
+		ResultSet rs;
+		boolean found = false;
 		
 		try {
 			WolfPubDb db = new WolfPubDb();
@@ -76,9 +72,16 @@ public class EditingPublishing {
 			result = 0;
 			
 			for (String topic: topics) {
-				
-				 db.executeUpdate(String.format(deleteTopic,topic));
-				 db.executeUpdate(String.format(template,"Topic",topic));
+				db.executeQueryAndPrintResults(String.format(deleteTopic, topic));
+				rs = db.getRs();
+				System.out.println();
+				 if(rs.next() == false && rs.previous() == false) {
+					 db.executeUpdate(String.format(template,"Topic",topic));
+				 }
+				 
+				 found = false;
+				 
+				 
 				 topicQuery = String.format(template, "PublicationHas", String.join(",",topic,isbn));
 				 
 				 result += db.executeUpdate(topicQuery);
@@ -87,19 +90,14 @@ public class EditingPublishing {
 			
 			System.out.println("Number of rows affected in the PublicationHas table: "+result);
 			db.close();
-			
-			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
-		
+
 		return 0;
 	}
-	
+
 	@Command(name = "enterNonBook", description = "Enter a new journal or magazine")
 	public static int enterNewJournalMagazine(
 			@Option( names = {"-t", "-title"},required=true, description = "Title of the journal or Magazine") String title, 
@@ -133,13 +131,20 @@ public class EditingPublishing {
 		String publicationQuery = String.format(template, "Publication",String.join(",",issn, title, type));
 		String nonBookQuery = String.format(template,"NonBook", String.join(",",issn,period));
 		String topicQuery;
-		String deleteTopic = "DELETE FROM Topic WHERE TopicName=%s";
+		String deleteTopic = "SELECT * FROM Topic WHERE TopicName=%s";
+		ResultSet rs;
+		boolean found = false;
 		
 		try {
 			WolfPubDb db = new WolfPubDb();
 			db.createStatement();
 			// add publication
 			result = db.executeUpdate(publicationQuery);
+			
+			
+			
+			
+			
 			System.out.println("Number of rows affected in the Publication Table: "+result);
 			// add book
 			result = db.executeUpdate(nonBookQuery);
@@ -148,8 +153,20 @@ public class EditingPublishing {
 			result = 0;
 			
 			for (String topic: topics) {
-				 db.executeUpdate(String.format(deleteTopic,topic));
-				 db.executeUpdate(String.format(template,"Topic",topic));
+				 
+				 
+				 db.executeQueryAndPrintResults(String.format(deleteTopic,topic));
+				 
+				 
+				 rs = db.getRs();
+				 
+				
+				 
+				 if(rs.next()==false && rs.previous()==false) {
+					 db.executeUpdate(String.format(template,"Topic",topic));
+				 }
+				 
+				 
 				 topicQuery = String.format(template, "PublicationHas", String.join(",",topic,issn));
 				 result += db.executeUpdate(topicQuery);
 				 
@@ -173,7 +190,7 @@ public class EditingPublishing {
 	public static int updateBook(
 			@Option( names = {"-t", "-title"},required=true, description = "Title of the book") String title,
 			@Option( names = {"-i", "-isbn"},required=true, description = "ISBN of the first edition of the book") String isbn,
-			@Option( names = {"-a", "-topic"},required=true, description = "Topics associated with the book", split=",") String[] topics,
+			@Option( names = {"-a", "-topic"}, description = "Topics associated with the book", split=",") String[] topics,
 			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
 		
@@ -234,15 +251,14 @@ public class EditingPublishing {
 				
 		
 		return 0;
-	}
-	
+	}	
 	
 	@Command(name = "updateNonBook", description = "Update information about an existing journal or magazine")
 	public static int updateJournalMagazine(
 			@Option( names = {"-t", "-title"},required=true, description = "Title of the journal or Magazine") String title, 
 			@Option( names = {"-i", "-issn"},required=true, description = "The ISSN number of the journal or magazine") String issn, 
 			@Option( names = {"-p", "-period"},required=true, description = "The frequency at which the Journal or the Magazine is published") String period,
-			@Option( names = {"-a", "-topics"},required=true, description = "All the topics addressed by the journal or magazine", split=",") String[] topics,
+			@Option( names = {"-a", "-topics"}, description = "All the topics addressed by the journal or magazine", split=",") String[] topics,
 			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
 		

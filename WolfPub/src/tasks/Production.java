@@ -103,20 +103,29 @@ public class Production {
 			   							@Option( names = {"-pd", "-publicationDate"}, required = true, description = "Book new edition publication date") String publicationDate,
 			   							@Option( names = {"-ep", "editionPrice"}, defaultValue = "0", description = "Book new edition price") Double editionPrice,
 			   							@Parameters( paramLabel = "ISBN") String isbn) {
-		
-		System.out.println("TODO: Attempt to update book edition information" + isbn + " with");
-		
-		if (PublicationID != null) {
-			System.out.println("PublicationID: " + PublicationID);
-		}
-		if (editionNumber != null) {
-			System.out.println("editionNumber: " + editionNumber);
-		}
-		if (publicationDate != null) {
-			System.out.println("publicationDate: " + publicationDate);
-		}
-		if (editionPrice != null) {
-			System.out.println("editionPrice: " + editionPrice);
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append("UPDATE ").append(EditionTableName).append(" SET ");
+			if (editionNumber != null) {
+				sb.append("EditionNumber=" + editionNumber + ",");
+			}
+			if (publicationDate!= null) {
+				sb.append("PublicationDate=" + publicationDate + ",");
+			}
+			if (editionPrice != null) {
+				sb.append("editionPrice=" + editionPrice + ",");
+			}
+			sb.deleteCharAt(sb.lastIndexOf(","));
+			sb.append(" WHERE PublicationID = '" + PublicationID + "' AND ISBN='" + isbn + "';");
+			
+			System.out.println("Try to process " + sb.toString());
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeUpdate(sb.toString());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return 1;
 		}
 		
 		return 0;
