@@ -6,7 +6,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import wolfpub.WolfPubDb;
 
-@Command(name = "publish", 
+@Command(name = "publish",
 description = "Manage publications"
 )
 public class EditingPublishing {
@@ -25,28 +25,7 @@ public class EditingPublishing {
 		}
 	}
 	
-	// checks if the user entered a valid topic or not
 	
-	private static boolean checkTopic(String topic) {
-		
-		
-		
-		String[] validTopics = new String[] {"General", "Sports", "Technology", "Business", "Politics", "Fiction"};
-		
-		for(String name: validTopics) {
-			
-			if(name.equals(topic)) {
-				
-				return true;
-			}
-			
-			
-			
-		}
-		
-		return false;
-		
-	}
 	
 	@Command(name = "enterBook", description = "Enter a new book")
 	public static int enterNewBook(
@@ -60,22 +39,11 @@ public class EditingPublishing {
 			 */
 			@Option( names = {"-t", "-title"},required=true, description = "Title of the book") String title,
 			@Option( names = {"-i", "-isbn"},required=true, description = "ISBN of the first edition of the book") String isbn,
-			@Option( names = {"-a", "-topic"},required=true, description = "Topics associated with the book", split=",") String[] topics) {
+			@Option( names = {"-a", "-topic"},required=true, description = "Topics associated with the book", split=",") String[] topics,
+			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
 		
-		// ensure that valid topics were entered
-		
-		for (String topic : topics) {
-			
-			if(! checkTopic(topic)) {
-				
-				System.out.println("One of the topics that you entered is not valid. Please enter a valid topic.");
-				
-				return -1;
-				
-			}
-		}
-		
+	
 		// enclose all the string variables in single
 		title = EditingPublishing.enclose(title);
 		isbn = EditingPublishing.enclose(isbn);
@@ -90,6 +58,7 @@ public class EditingPublishing {
 		String publicationQuery = String.format(template, "Publication",String.join(",",isbn, title, type));
 		String bookQuery = String.format(template,"Books", isbn);
 		String topicQuery;
+		String deleteTopic = "DELETE FROM Topic WHERE TopicName=%s";
 		
 		try {
 			WolfPubDb db = new WolfPubDb();
@@ -105,6 +74,8 @@ public class EditingPublishing {
 			
 			for (String topic: topics) {
 				
+				 db.executeUpdate(String.format(deleteTopic,topic));
+				 db.executeUpdate(String.format(template,"Topic",topic));
 				 topicQuery = String.format(template, "PublicationHas", String.join(",",topic,isbn));
 				 
 				 result += db.executeUpdate(topicQuery);
@@ -131,21 +102,10 @@ public class EditingPublishing {
 			@Option( names = {"-t", "-title"},required=true, description = "Title of the journal or Magazine") String title, 
 			@Option( names = {"-i", "-issn"},required=true, description = "The ISSN number of the journal or magazine") String issn, 
 			@Option( names = {"-p", "-period"},required=true, description = "The frequency at which the Journal or the Magazine is published") String period,
-			@Option( names = {"-a", "-topics"},required=true, description = "All the topics addressed by the journal or magazine", split=",") String[] topics) {
+			@Option( names = {"-a", "-topics"},required=true, description = "All the topics addressed by the journal or magazine", split=",") String[] topics,
+			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
-		// ensure that valid topics were entered
 		
-				for (String topic : topics) {
-					
-					if(! checkTopic(topic)) {
-						
-						System.out.println("One of the topics that you entered is not valid. Please enter a valid topic.");
-						
-						return -1;
-						
-					}
-				}
-				
 		
 		title = EditingPublishing.enclose(title);
 		issn = EditingPublishing.enclose(issn);
@@ -170,6 +130,7 @@ public class EditingPublishing {
 		String publicationQuery = String.format(template, "Publication",String.join(",",issn, title, type));
 		String nonBookQuery = String.format(template,"NonBook", String.join(",",issn,period));
 		String topicQuery;
+		String deleteTopic = "DELETE FROM Topic WHERE TopicName=%s";
 		
 		try {
 			WolfPubDb db = new WolfPubDb();
@@ -184,7 +145,8 @@ public class EditingPublishing {
 			result = 0;
 			
 			for (String topic: topics) {
-				
+				 db.executeUpdate(String.format(deleteTopic,topic));
+				 db.executeUpdate(String.format(template,"Topic",topic));
 				 topicQuery = String.format(template, "PublicationHas", String.join(",",topic,issn));
 				 result += db.executeUpdate(topicQuery);
 				 
@@ -208,20 +170,10 @@ public class EditingPublishing {
 	public static int updateBook(
 			@Option( names = {"-t", "-title"},required=true, description = "Title of the book") String title,
 			@Option( names = {"-i", "-isbn"},required=true, description = "ISBN of the first edition of the book") String isbn,
-			@Option( names = {"-a", "-topic"},required=true, description = "Topics associated with the book", split=",") String[] topics) {
+			@Option( names = {"-a", "-topic"},required=true, description = "Topics associated with the book", split=",") String[] topics,
+			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
-		// ensure that valid topics were entered
 		
-				for (String topic : topics) {
-					
-					if(! checkTopic(topic)) {
-						
-						System.out.println("One of the topics that you entered is not valid. Please enter a valid topic.");
-						
-						return -1;
-						
-					}
-				}
 				
 				// enclose all the string variables in single
 				title = EditingPublishing.enclose(title);
@@ -243,6 +195,7 @@ public class EditingPublishing {
 				
 				
 				String topicQuery;
+				String deleteTopic = "DELETE FROM Topic WHERE TopicName=%s";
 				
 				try {
 					WolfPubDb db = new WolfPubDb();
@@ -257,7 +210,8 @@ public class EditingPublishing {
 					result = 0;
 					
 					for (String topic: topics) {
-						
+						 db.executeUpdate(String.format(deleteTopic,topic));
+						 db.executeUpdate(String.format(template,"Topic",topic));
 						 topicQuery = String.format(template, "PublicationHas", String.join(",",topic,isbn));
 						 
 						 result += db.executeUpdate(topicQuery);
@@ -285,22 +239,9 @@ public class EditingPublishing {
 			@Option( names = {"-t", "-title"},required=true, description = "Title of the journal or Magazine") String title, 
 			@Option( names = {"-i", "-issn"},required=true, description = "The ISSN number of the journal or magazine") String issn, 
 			@Option( names = {"-p", "-period"},required=true, description = "The frequency at which the Journal or the Magazine is published") String period,
-			@Option( names = {"-a", "-topics"},required=true, description = "All the topics addressed by the journal or magazine", split=",") String[] topics) {
+			@Option( names = {"-a", "-topics"},required=true, description = "All the topics addressed by the journal or magazine", split=",") String[] topics,
+			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
-		
-		
-		// ensure that valid topics were entered
-		
-		for (String topic : topics) {
-			
-			if(! checkTopic(topic)) {
-				
-				System.out.println("One of the topics that you entered is not valid. Please enter a valid topic.");
-				
-				return -1;
-				
-			}
-		}
 		
 
 		title = EditingPublishing.enclose(title);
@@ -319,7 +260,6 @@ public class EditingPublishing {
 		
 		//and then add to NonBook table
 		
-		
 		int result;
 		String template = "INSERT INTO %s VALUES(%s);";
 		
@@ -328,6 +268,7 @@ public class EditingPublishing {
 		String deleteTopics = "DELETE FROM PublicationHas WHERE PublicationID="+issn;
 		String topicQuery;
 		WolfPubDb db = null;
+		String deleteTopic = "DELETE FROM Topic WHERE TopicName=%s";
 		try {
 			db = new WolfPubDb();
 			db.autoCommitOff();
@@ -346,7 +287,8 @@ public class EditingPublishing {
 			result = 0;
 			
 			for (String topic: topics) {
-				
+				 db.executeUpdate(String.format(deleteTopic,topic));
+				 db.executeUpdate(String.format(template,"Topic",topic));
 				 topicQuery = String.format(template, "PublicationHas", String.join(",",topic,issn));
 				 result += db.executeUpdate(topicQuery);
 				 
@@ -380,7 +322,8 @@ public class EditingPublishing {
 	@Command(name = "assignEditorBook", description = "Assign editors to a Book Edition")
 	public static int assignEditor(
 			@Option( names = {"-s", "-ssn"},required=true, description = "The Social Security Number of the editor")String ssn, 
-			@Option( names = {"-i", "-isbn"},required=true, description = "The ISBN number of the book edition")String isbn) {
+			@Option( names = {"-i", "-isbn"},required=true, description = "The ISBN number of the book edition")String isbn,
+			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
 		ssn = EditingPublishing.enclose(ssn);
 		isbn = EditingPublishing.enclose(isbn);
@@ -409,7 +352,8 @@ public class EditingPublishing {
 	public static int assignEditorNonBook(
 			@Option( names = {"-s", "-ssn"},required=true, description = "The Social Security Number of the editor")String ssn, 
 			@Option( names = {"-i", "-isbn"},required=true, description = "The ISSN number of the journal or magazine")String issn,
-			@Option( names = {"-d", "-date"},required=true, description = "The publication date of an isssue")String date) {
+			@Option( names = {"-d", "-date"},required=true, description = "The publication date of an isssue")String date,
+			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
 		ssn = EditingPublishing.enclose(ssn);
 		issn = EditingPublishing.enclose(issn);
@@ -443,7 +387,8 @@ public class EditingPublishing {
 			@Option( names = {"-w", "-text"},required=true, description = "The text of the article") String text, 
 			@Option( names = {"-i", "-issn"},required=true, description = "The ISSN date of the publication") String issn, 
 			@Option( names = {"-d", "-date"},required=true, description = "The publication date of the issue") String publicationDate, 
-			@Option( names = {"-a", "-ssn", "-author", "-authors"},required=true, description = "The Social Security Numbers of the authors of the article", split=",") String[] authors) {
+			@Option( names = {"-a", "-ssn", "-author", "-authors"},required=true, description = "The Social Security Numbers of the authors of the article", split=",") String[] authors,
+			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
 		// make sure all the entered topics are valid
 		
@@ -496,7 +441,8 @@ public class EditingPublishing {
 	public static int deleteArticle(
 			@Option( names = {"-t", "-title"},required=true, description = "The title of the article") String title, 
 			@Option( names = {"-i", "-issn"},required=true, description = "The ISSN of the publication") String issn, 
-			@Option( names = {"-d", "-date"},required=true, description = "The publication date of the article") String publicationDate) {
+			@Option( names = {"-d", "-date"},required=true, description = "The publication date of the article") String publicationDate,
+			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
 		
 		title = EditingPublishing.enclose(title);
@@ -528,7 +474,8 @@ public class EditingPublishing {
 	public static int addChapter(
 			@Option( names = {"-i", "-isbn"},required=true, description = "The ISBN of the book edition") String isbn, 
 			@Option( names = {"-t", "-title"},required=true, description = "The title of the chapter") String title, 
-			@Option( names = {"-c", "-chapter"},required=true, description = "The number of the chapter") int chapterNumber) {
+			@Option( names = {"-c", "-chapter"},required=true, description = "The number of the chapter") int chapterNumber,
+			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
 		isbn = EditingPublishing.enclose(isbn);
 		title = EditingPublishing.enclose(title);
@@ -557,7 +504,8 @@ public class EditingPublishing {
 	@Command(name = "deleteChapter", description = "Delete chapter from a book edition")
 	public static int deleteChapter(
 			@Option( names = {"-i", "-isbn"},required=true, description = "The ISBN of the book edition") String isbn, 
-			@Option( names = {"-c", "-chapter"},required=true, description = "The number of the chapter") int chapterNumber) {
+			@Option( names = {"-c", "-chapter"},required=true, description = "The number of the chapter") int chapterNumber,
+			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
 		
 		isbn = EditingPublishing.enclose(isbn);
@@ -586,7 +534,8 @@ public class EditingPublishing {
 			@Option( names = {"-t", "-title"},required=true, description = "The title of the section") String title, 
 			@Option( names = {"-w", "-text"},required=true, description = "The text in the section") String sectionText, 
 			@Option( names = {"-s", "-snumber"},required=true, description = "The section number") int sectionNumber, 
-			@Option( names = {"-c", "-cnumber"},required=true, description = "The chapter number") int chapterNumber) {
+			@Option( names = {"-c", "-cnumber"},required=true, description = "The chapter number") int chapterNumber,
+			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
 		isbn = EditingPublishing.enclose(isbn);
 		title = EditingPublishing.enclose(title);
@@ -615,7 +564,8 @@ public class EditingPublishing {
 	public static int deleteSection(
 			@Option( names = {"-i", "-isbn"},required=true, description = "The ISBN number of the edition")String isbn, 
 			@Option( names = {"-s", "-snumber"},required=true, description = "The section number") int sectionNumber, 
-			@Option( names = {"-c", "-cnumber"},required=true, description = "The chapter number") int chapterNumber) {
+			@Option( names = {"-c", "-cnumber"},required=true, description = "The chapter number") int chapterNumber,
+			@Option(names = { "-h", "--help" }, usageHelp = true, description = "Display a help message") boolean helpRequested) {
 		
 		isbn = EditingPublishing.enclose(isbn);
 		
