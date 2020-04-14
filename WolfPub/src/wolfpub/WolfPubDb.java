@@ -172,7 +172,7 @@ public class WolfPubDb implements AutoCloseable {
 		statement = conn.createStatement();
 	}
 	
-	public void executeQuery(String query) throws SQLException {
+	public void executeQueryAndPrintResults(String query) {
 		try {
 			/* Execute query */
 			statement = conn.createStatement(); 
@@ -215,8 +215,12 @@ public class WolfPubDb implements AutoCloseable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
-
+	
 		}
+	}
+	
+	public void executeQuery(String query) throws SQLException {
+		rs = statement.executeQuery(query);
 	}
 	
 	/*

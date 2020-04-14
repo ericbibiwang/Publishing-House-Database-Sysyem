@@ -83,7 +83,7 @@ public class Production {
 			
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -194,7 +194,7 @@ public class Production {
 			
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -252,7 +252,13 @@ public class Production {
 		return 0;
 	}
 	
-	
+	/* description: enter an article
+	 * INSERT INTO `cdsuh`.`Publication` (`PublicationID`, `PublicationTitle`) VALUES ('5', 'test5');
+	 * INSERT INTO `cdsuh`.`NonBook` (`PublicationID`) VALUES ('5');
+	 * INSERT INTO `cdsuh`.`Issue` (`PublicationID`, `IssueDate`, `IssueTitle`, `Price`) VALUES ('5', '2020-05-01', 'test5', '5');
+	 * Check MySQLWorkbench results after run configuration as follow: production enterArticle 5 2020-05-01 test5 -a text5
+	 * Test passed.
+	 */
 	@Command(name = "enterArticle", description = "enter a article or enter article text into database")
 	public static int enterArticle( @Option( names = {"-a", "-articleText"}, required = true, description = "Article text")	String ArticleText,
 									@Parameters( paramLabel = "PublicationID")	String PublicationID,
@@ -301,13 +307,17 @@ public class Production {
 		return 0; // decide on the appropriate return type; either return a tuple or print to stdout
 	}
 	
+	/* description: update article
+	 * Check MySQLWorkbench results after run configuration as follow: production updateArticle 5 2020-05-01 test5 -a updateText
+	 * Test passed.
+	 */
 	@Command( name = "updateArticle", description = "update article or article text")
 	public static int updateArticle( @Option( names = {"-a", "-articleText"}, required = true, description = "Article text")	String ArticleText,
 									 @Parameters( paramLabel = "PublicationID")	String PublicationID,
 									 @Parameters( paramLabel = "Issue Date")		String IssueDate,
 									 @Parameters( paramLabel = "Article Title")	String ArticleTitle) {
 		
-		System.out.println("TODO: Attempt to update article " + PublicationID + " " + IssueDate + ArticleTitle + " with");
+		System.out.println("TODO: Attempt to update article " + PublicationID + " " + IssueDate + " " + ArticleTitle + " with");
 		
 		if (ArticleText != null) {
 			System.out.println("ArticleText: " + ArticleText);
@@ -505,7 +515,7 @@ public class Production {
 			/* Execute query*/
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -537,7 +547,7 @@ public class Production {
 			/* Execute query*/
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -561,7 +571,7 @@ public class Production {
 			/* Execute query*/
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -583,7 +593,7 @@ public class Production {
 			/* Execute query*/
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -610,7 +620,7 @@ public class Production {
 			/* Execute query*/
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -662,7 +672,7 @@ public class Production {
 			
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -689,7 +699,7 @@ public class Production {
 			/* Execute query*/
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
