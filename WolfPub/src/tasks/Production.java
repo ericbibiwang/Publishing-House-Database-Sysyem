@@ -306,7 +306,9 @@ public class Production {
 		
 		return 0; // decide on the appropriate return type; either return a tuple or print to stdout
 	}
-	
+	/* 
+	 * Test passed.
+	 */
 	@Command( name = "updateArticle", description = "update article or article text")
 	public static int updateArticle( @Option( names = {"-a", "-articleText"}, required = true, description = "Article text")	String ArticleText,
 									 @Parameters( paramLabel = "PublicationID")	String PublicationID,
@@ -381,7 +383,7 @@ public class Production {
 	
 	/* description: update chapter
 	 * Check MySQLWorkbench results after run configuration as follow: production updateChapter 1234567890 5 -c update
-	 * TODO: test update
+	 * Test passed.
 	 */
 	@Command( name = "updateChapter", description = "update chapter")
 	public static int updateChapter(@Option( names = {"-c", "-chapterTitle"}, required = true, description = "Chapter Title")	String chapterTitle,
@@ -450,13 +452,13 @@ public class Production {
 	
 	/* description: update publication's topic (in publicationHas table)
 	 * Check MySQLWorkbench results after run configuration as follow: production updateTopic Fiction testTopic
-	 * TODO: test update
+	 * Test passed.
 	 */
 	@Command( name = "updateTopic", description = "update publication topic")
 	public static int updateTopic(@Parameters( paramLabel = "TopicName")		String TopicName,
 								  @Parameters( paramLabel = "PublicationID")	String PublicationID) {
 		
-		String query = "UPDATE PublicationHas SET TopicName='"+TopicName+"' WHERE PublicationID='"+PublicationID;
+		String query = "UPDATE PublicationHas SET TopicName='"+TopicName+"' WHERE PublicationID='"+PublicationID+"'";
 		
 		
 		try {
