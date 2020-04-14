@@ -302,7 +302,7 @@ public class Distribution {
 		
 			/* If an order ID exists, update it */
 			/* If an order ID does not exist, create a new order with an autoincremented ID. */
-			if (rs.next() == false) {
+			if (rs.next() == false || orderID == null) {
 				/* No matching orderID found, let WolfPubDB autoincrement the ID */
 				if (addr == null) {
 					System.out.println("No order with id " + orderID + " found. Provide a distributor address to create a new order.");
@@ -310,11 +310,17 @@ public class Distribution {
 				}
 				
 				/* Create new Order */
-				/* TODO Consider a transaction here */
 				sb.setLength(0);
-				sb.append("INSERT INTO OrderTable(StreetAddr,City,Zip) VALUES (");
-				sb.append("'" + addr + "','" + city + "','" + zip + ");");
+				sb.append("INSERT INTO OrderTable(StreetAddr,City,Zip,Date,ShippingCost) VALUES (");
+				sb.append("'" + addr + "','" + city + "','" + zip + "','");
+				if (orderDate != null) {
+					sb.append(new SimpleDateFormat("yyyy-MM-dd").format(orderDate));
+				} else {
+					sb.append(new SimpleDateFormat("yyyy-MM-dd").format(Date.from(Instant.now()))).append("','");
+				}
+				sb.append(shippingCost == null ? "0" : shippingCost.toString()).append("');");
 				
+				System.out.println(sb.toString());
 				//db.createStatement();
 				if (0 == db.executeUpdate(sb.toString()))
 				{
@@ -346,38 +352,47 @@ public class Distribution {
 			}
 			sb.append(", ShippingCost = ").append(shippingCost == null ? "0" : shippingCost.toString()).append(";");
 			
-			/* Update Order contents */
-			db.prepareStatement("INSERT INTO OrderContainsEdition (OrderID, ISBN, NumOfCopies, Price) " + 
-					"SELECT ? , ? , ? , EditionPrice FROM Edition WHERE ISBN= ? ON DUPLICATE KEY UPDATE;");
-			for (Map.Entry<String, Integer> entry : books.entrySet()) {
-				db.setInt(1, Integer.valueOf(orderID));
-				db.setString(2, entry.getKey());
-				db.setInt(3, Integer.valueOf(entry.getValue()));
-				db.setString(5, entry.getKey());
-				db.addBatch();
-			};
+			if (books != null) {
+				/* Update Order contents */
+				db.prepareStatement("INSERT INTO OrderContainsEdition (OrderID, ISBN, NumOfCopies, Price) " + 
+						"SELECT ? , ? , ? , EditionPrice FROM Edition NATURAL JOIN OrderTable WHERE ISBN= ? " + 
+						"ON DUPLICATE KEY UPDATE NumOfCopies = ?;");
+				for (Map.Entry<String, Integer> entry : books.entrySet()) {
+					db.setInt(1, Integer.valueOf(orderID));
+					db.setString(2, entry.getKey());
+					db.setInt(3, Integer.valueOf(entry.getValue()));
+					db.setString(4, entry.getKey());
+					db.setInt(5, Integer.valueOf(entry.getValue()));
+					db.addBatch();
+					System.out.printf("Ordering %d copies of %s\n", Integer.valueOf(entry.getValue()), entry.getKey());
+				};
+			}
 			
-			db.prepareStatement("INSERT INTO OrderContainsIssue (OrderID, PublicationID, IssueDate, NumOfCopies, Price) " +
-								" SELECT ? , ? , ? , ?, Price FROM Issue WHERE ISSN= ? ON DUPLICATE KEY UPDATE;");
-			for (Map.Entry<String, Integer> entry : periodicals.entrySet()) {
-				if (!entry.getKey().contains("|")) {
-					throw new Exception("Identify periodicals with id, issue date, and number of copies: 12345678|2020-01-01=5");
-				}
-				db.setInt(1, Integer.valueOf(orderID));
-				db.setString(2, entry.getKey().split("|")[0]);
-				db.setDate(3, Date.valueOf(entry.getKey().split("|")[1]));
-				db.setInt(4, Integer.valueOf(entry.getValue()));
-				db.setString(6, entry.getKey().split("|")[0]);
-				db.addBatch();
-			};
+			if (periodicals != null) {
+				db.prepareStatement("INSERT INTO OrderContainsIssue (OrderID, PublicationID, IssueDate, NumOfCopies, Price) " +
+									"SELECT ? , ? , ? , ?, Price FROM Issue NATURAL JOIN OrderTable " +
+									"WHERE PublicationID= ? ON DUPLICATE KEY UPDATE NumOfCopies = ?;");
+				for (Map.Entry<String, Integer> entry : periodicals.entrySet()) {
+					if (!entry.getKey().contains("|")) {
+						throw new Exception("Identify periodicals with id, issue date, and number of copies: 12345678|2020-01-01=5");
+					}
+					db.setInt(1, Integer.valueOf(orderID));
+					db.setString(2, entry.getKey().split("\\|")[0]);
+					db.setDate(3, Date.valueOf(entry.getKey().split("\\|")[1]));
+					db.setInt(4, Integer.valueOf(entry.getValue()));
+					db.setString(5, entry.getKey().split("\\|")[0]);
+					db.setInt(6, Integer.valueOf(entry.getValue()));
+					db.addBatch();
+					System.out.printf("Ordering %d copies of %s from %s\n", Integer.valueOf(entry.getValue()), entry.getKey().split("\\|")[0],
+							entry.getKey().split("\\|")[1]);
+				};
+			}
 			db.executeUpdate();
 		} catch (SQLException e) {
-			/* TODO rollback transaction */
 			e.printStackTrace();
 			retval = 1;
 		} catch (Exception e) {
-			/* TODO rollback transaction */
-			System.err.println(e);
+			e.printStackTrace();
 			retval = 1;
 		} finally {
 			/* TODO */
@@ -412,48 +427,66 @@ public class Distribution {
 				
 				/* Build the bill header */
 				bill.addRule();
-				bill.addRow(billHeader);
-				bill.addRow("Bill for order " + orderID + " generated on " + new SimpleDateFormat().format(Date.from(Instant.now())));
+				bill.addRow(null, null, null, null, null, billHeader);
+				bill.addRow(null, null, null, null, null, "Bill for order " + orderID + " generated on " + new SimpleDateFormat().format(Date.from(Instant.now())));
 				bill.addRule();
 				/* Build the book section */
-				bill.addRow("Books: Title", "Edition", "ISBN", "Copies", "Unit Price", "Price");
 				db.executeQuery("SELECT PublicationTitle, EditionNumber, ISBN, NumOfCopies, o.Price "
 							  + "FROM OrderContainsEdition o NATURAL JOIN Edition NATURAL JOIN Publication "
 							  + "WHERE OrderID=" + orderID + ";");
 				rs = db.getRs();
-				while (rs.next()) {
-					Double price = rs.getInt("NumOfCopies") * rs.getDouble("o.Price");
-					bill.addRow(rs.getString("PublicationTitle"),
-							    rs.getString("EditionNumber"),
-							    rs.getString("ISBN"),
-							    rs.getString("NumOfCopies"),
-							    nf.format(Double.valueOf(rs.getString("o.Price"))),
-							    nf.format(price));
-					subtotal += price;
+
+				if (rs.first()) {
+					rs.beforeFirst();
+				
+					bill.addRow("Books: Title", "Edition", "ISBN", "Copies", "Unit Price", "Price");
+					while (rs.next()) {
+						Double price = rs.getInt("NumOfCopies") * rs.getDouble("o.Price");
+						bill.addRow(rs.getString("PublicationTitle"),
+								    rs.getString("EditionNumber"),
+								    rs.getString("ISBN"),
+								    rs.getString("NumOfCopies"),
+								    nf.format(Double.valueOf(rs.getString("o.Price"))),
+								    nf.format(price));
+						subtotal += price;
+					}
+					bill.addRow("","","","","","");
+					bill.addRow("","","","","", "Book subtotal: " + nf.format(subtotal));
+	
+					total += subtotal;
+					subtotal = 0.0;
+					bill.addRule();
 				}
-				bill.addRow("Book subtotal: " + nf.format(subtotal));
-				total += subtotal;
-				subtotal = 0.0;
-				bill.addRule();
+				
 				/* Build the periodical section */
-				bill.addRow("Non-books: Title", "Issue Date", "Copies", "Total Price");
-				db.executeQuery("SELECT PublicationTitle, IssueDate, NumOfCopies, o.Price");
+				db.executeQuery("SELECT PublicationTitle, IssueDate, PublicationID, NumOfCopies, o.Price " +
+								"FROM OrderContainsIssue o NATURAL JOIN Issue NATURAL JOIN Publication " + 
+								"WHERE OrderID=" + orderID + ";");
 				rs = db.getRs();
-				while (rs.next()) {
-					Double price = rs.getInt("NumOfCopies") * rs.getDouble("o.Price");
-					bill.addRow(rs.getString("PublicationTitle"),
-								rs.getString("IssueDate"),
-								rs.getString("numOfCopies"),
-								nf.format(Double.valueOf(rs.getString("o.Price"))),
-								nf.format(price));
-					subtotal += price;
+
+				if (rs.first()) {
+					bill.addRow("", "Non-books: Title", "Issue Date", "ISSN", "Copies", "Total Price");
+					rs.beforeFirst();
+				
+					while (rs.next()) {
+						Double price = rs.getInt("NumOfCopies") * rs.getDouble("o.Price");
+						bill.addRow("", rs.getString("PublicationTitle"),
+									rs.getString("IssueDate"),
+									rs.getString("numOfCopies"),
+									nf.format(Double.valueOf(rs.getString("o.Price"))),
+									nf.format(price));
+						subtotal += price;
+					}
+					bill.addRow("","","","","","");
+					bill.addRow("","","","","", "Non-book subtotal: " + nf.format(subtotal));
+					
+					total += subtotal;
 				}
-				bill.addRow("Non-book subtotal: " + nf.format(subtotal));
 				/* Print the total */
-				total += subtotal;
-				bill.addRow("Bill total: " + nf.format(total));
 				bill.addRule();
-				db.executeUpdate("UPDATE Distributor SET Balance += " + total + " WHERE(StreetAddr,City,Zip) IN " +
+				bill.addRow("","","","","", "Bill total: " + nf.format(total));
+				bill.addRule();
+				db.executeUpdate("UPDATE Distributor SET Balance=Balance+" + total + " WHERE(StreetAddr,City,Zip) IN " +
 								 "(SELECT StreetAddr,City,Zip FROM OrderTable WHERE OrderID=" + orderID + ");");
 				System.out.println(bill.render());
 			} else {
@@ -485,7 +518,7 @@ public class Distribution {
 		try {
 			WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeUpdate("UPDATE Distributor SET Balance -= " + payAmount.toString() + 
+			db.executeUpdate("UPDATE Distributor SET Balance=Balance-" + payAmount.toString() + 
 							" WHERE StreetAddr='" + addr + "' AND City='" + city + "' AND Zip='" + zip + "';");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -496,4 +529,5 @@ public class Distribution {
 		return 0;
 	}
 }
+
 
