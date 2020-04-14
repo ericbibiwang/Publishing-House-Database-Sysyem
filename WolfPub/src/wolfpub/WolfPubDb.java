@@ -199,7 +199,12 @@ public class WolfPubDb implements AutoCloseable {
 			while (rs.next()) {
 				result.clear();
 				for (int i = 1; i <= cols; i++) {
+					String temp=rs.getString(i);
+					if (temp!=null) {
 					result.add(rs.getString(i));
+					}else {
+					result.add("NULL");
+					}
 				}
 				printTable.addRow(result);
 			}
