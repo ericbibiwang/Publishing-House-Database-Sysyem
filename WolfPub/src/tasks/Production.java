@@ -103,29 +103,14 @@ public class Production {
 			   							@Option( names = {"-pd", "-publicationDate"}, required = true, description = "Book new edition publication date") String publicationDate,
 			   							@Option( names = {"-ep", "editionPrice"}, defaultValue = "0", description = "Book new edition price") Double editionPrice,
 			   							@Parameters( paramLabel = "ISBN") String isbn) {
+		String query = "UPDATE Issue SET editionPrice='"+editionPrice+ "' AND SET publicationDate='"+ publicationDate + "'AND SET editionNumber='"+ editionNumber + "'AND SET PublicationID='"+ PublicationID +"' WHERE ISBN='"+isbn+"'";
 		try {
-			StringBuilder sb = new StringBuilder();
-			sb.append("UPDATE ").append(EditionTableName).append(" SET ");
-			if (editionNumber != null) {
-				sb.append("EditionNumber=" + editionNumber + ",");
-			}
-			if (publicationDate!= null) {
-				sb.append("PublicationDate=" + publicationDate + ",");
-			}
-			if (editionPrice != null) {
-				sb.append("editionPrice=" + editionPrice + ",");
-			}
-			sb.deleteCharAt(sb.lastIndexOf(","));
-			sb.append(" WHERE PublicationID = '" + PublicationID + "' AND ISBN='" + isbn + "';");
-			
-			System.out.println("Try to process " + sb.toString());
-			wolfpub.WolfPubDb db = WolfPub.getDb();
+			WolfPubDb db = new WolfPubDb();
 			db.createStatement();
-			db.executeUpdate(sb.toString());
+			db.executeUpdate(query);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return 1;
 		}
 		
 		return 0;
@@ -221,9 +206,9 @@ public class Production {
 	public static int updateIssue(@Option( names = {"-it", "-issueTitle"}, required = true, description = "new issue title") String issueTitle,
 								  @Option( names = {"-p", "Price"}, defaultValue = "0", description = "new issue price") Double Price,
 								  @Parameters( paramLabel = "PublicationID") String PublicationID,
-								  @Parameters( paramLabel = "issueDate") 	 String issueDate) {
+								  @Parameters( paramLabel = "issueDate") 	 String IssueDate) {
 		
-		System.out.println("TODO: Attempt to update issue " + PublicationID + " " + issueDate + " with");
+		System.out.println("Attempt to update issue " + PublicationID + " " + IssueDate + " with");
 		
 		if (issueTitle != null) {
 			System.out.println("issueTitle: " + issueTitle);
@@ -232,7 +217,20 @@ public class Production {
 			System.out.println("price: " + Price);
 		}
 		
+		String query = "UPDATE Issue SET issueTitle='"+issueTitle+ "' AND SET Price='"+ Price + "' WHERE PublicationID='"+PublicationID+"' AND IssueDate"
+				+ "='"+IssueDate+"'";
+		
+		
+		try {
+			WolfPubDb db = new WolfPubDb();
+			db.createStatement();
+			db.executeUpdate(query);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return 0;
+		
 	}
 	
 	/* description: delete issue with issueDate, publicationID(foreign key)
