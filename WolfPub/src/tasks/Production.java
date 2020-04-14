@@ -20,7 +20,7 @@ public class Production {
 	private static String IssueTableName = "Issue";
 	private static String ArticleTableName = "Article";
 	private static String ChapterTableName = "Chapter";
-	private static String TopicTableName = "Topic";
+	private static String PublicationTopicTableName = "PublicationHas";
 	private static String AuthortoArticleTableName = "WritesArticle";
 	private static String StaffPaymentTableName = "Employee";
 	
@@ -397,6 +397,12 @@ public class Production {
 		
 	}
 	
+	/* description: enter topic to publication
+	 * INSERT INTO `cdsuh`.`Publication` (`PublicationID`) VALUES ('testTopic');
+	 * use an exist topic "politics"
+	 * Check MySQLWorkbench results after run configuration as follow: production enterTopic politics testTopic
+	 * Test passed.
+	 */
 	@Command( name = "enterTopic", description = "enter topic into publications")
 	public static int enterTopic(@Parameters( paramLabel = "TopicName")		String TopicName,
 								 @Parameters( paramLabel = "PublicationID")	String PublicationID) {
@@ -411,7 +417,7 @@ public class Production {
 		
 		/* Build the update string */
 		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO ").append(TopicTableName).append(" (");
+		sb.append("INSERT INTO ").append(PublicationTopicTableName).append(" (");
 		for (String col : columns) {
 			sb.append(col).append(",");
 		}
@@ -436,6 +442,10 @@ public class Production {
 		return 0; // decide on the appropriate return type; either return a tuple or print to stdout
 	}
 	
+	/* description: update publication's topic (in publicationHas table)
+	 * Check MySQLWorkbench results after run configuration as follow: production updateTopic Fiction testTopic
+	 * TODO: test update
+	 */
 	@Command( name = "updateTopic", description = "update publication topic")
 	public static int updateTopic(@Parameters( paramLabel = "TopicName")		String TopicName,
 								  @Parameters( paramLabel = "PublicationID")	String PublicationID) {
