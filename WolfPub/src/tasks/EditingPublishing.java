@@ -1,9 +1,12 @@
 package tasks;
 
 import java.sql.SQLException;
+import java.util.Vector;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Parameters;
+import wolfpub.WolfPub;
 import wolfpub.WolfPubDb;
 
 @Command(name = "publish",
@@ -589,8 +592,46 @@ public class EditingPublishing {
 	}
 	
 	
+	@Command( name = "editorView", description = "editor can view the information on the publications he/she is responsible for")
+	public static void editorView(@Option( names = {"-s", "-SSN"}, description = "Editor SSN")			String SSN,
+			   					 @Option( names = {"-isbn", "-ISBN"}, description = "ISBN")				String isbn,
+			   					 @Option( names = {"-issue_Date", "-issueDate"}, description = "issue Date")		String IssueDate) {
+		if (SSN == null && isbn == null && IssueDate == null) {
+			System.err.println("Search by -SSN, -publicationType, -ISBN, or -issueDate");
+		}
+		try {
+			boolean andit = false;
+			/* Add query*/
+			StringBuilder sb = new StringBuilder();
+			// TODO: many cases
+			sb.append("SELECT SSN FROM Editor NATURAL JOIN EditsEdition NATURAL JOIN EditsIssue ");
+			if (SSN != null) {
+				sb.append("SSN='" + SSN + "'");
+				andit = true;
+			}
+			if (isbn != null) {
+				if(andit) sb.append(" AND ");
+				sb.append("ISBN='" + isbn + "'");
+				andit=true;
+			}
+			if (IssueDate != null) {
+				if(andit) sb.append(" AND ");
+				sb.append("IssueDate='" + IssueDate + "'");
+				andit=true;
+			}
+			sb.append(";");
+			
+			System.out.println("Try to process " + sb.toString());
+			
+			/* Execute query*/
+			wolfpub.WolfPubDb db = WolfPub.getDb();
+			db.createStatement();
+			db.executeQueryAndPrintResults(sb.toString());	
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
-	
-	
 
 }

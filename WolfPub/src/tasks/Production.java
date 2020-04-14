@@ -710,7 +710,7 @@ public class Production {
 	// add contractPay is 0 then (s)he is an invited employee.
 	public static int enterRegularStaffPayment(@Option( names = {"-n", "-name"}, description = "Employee name")			String Name,
 											   @Option( names = {"-c", "-contractPay"}, description = "Contract Pay")	Float Contractpay,
-											   @Option( names = {"p", "-payPeriod"}, description = "Pay Period")		String PayPeriod,
+											   @Option( names = {"-p", "-payPeriod"}, description = "Pay Period")		String PayPeriod,
 											   @Parameters( paramLabel = "SSN")		String SSN) {
 		try {
 			Vector<String> columns = new Vector<String>();
@@ -761,7 +761,7 @@ public class Production {
 	}
 	
 	@Command( name = "track", description = "keep track of when each payment was claimed by its PaymentID")
-	// Since in schema we have PaymentID associate with payment, we can use PaymentID to track payment with related SSN
+	// Since in schema we have PaymentID associate with payment, we can use SSN and paymentID to track payment with related SSN
 	public static void trackPayment(@Option( names = {"-a", "-amount"}, description = "Payment Amount")			Float Amount,
 									@Option( names = {"-d", "-datePickedUp"}, description = "Date picked Up")	String  dataPcikedUp,
 									@Parameters( paramLabel = "SSN")		String SSN,
@@ -784,6 +784,5 @@ public class Production {
 			}
 		
 	}
-	
 	
 }
