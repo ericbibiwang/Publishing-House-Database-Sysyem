@@ -104,7 +104,7 @@ public class Production {
 			   							@Option( names = {"-ep", "editionPrice"}, defaultValue = "0", description = "Book new edition price") Double editionPrice,
 			   							@Parameters( paramLabel = "ISBN") String isbn) {
 		
-		System.out.println("TODO: Attempt to update book edition information" + isbn + " with");
+		System.out.println("Attempt to update book edition information" + isbn + " with");
 		
 		if (PublicationID != null) {
 			System.out.println("PublicationID: " + PublicationID);
@@ -117,6 +117,18 @@ public class Production {
 		}
 		if (editionPrice != null) {
 			System.out.println("editionPrice: " + editionPrice);
+		}
+		
+		String query = "UPDATE Issue SET editionPrice='"+editionPrice+ "' AND SET publicationDate='"+ publicationDate + "'AND SET editionNumber='"+ editionNumber + "'AND SET PublicationID='"+ PublicationID +"' WHERE ISBN='"+isbn+"'";
+		
+		
+		try {
+			WolfPubDb db = new WolfPubDb();
+			db.createStatement();
+			db.executeUpdate(query);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 		return 0;
