@@ -83,7 +83,7 @@ public class Production {
 			
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -194,7 +194,7 @@ public class Production {
 			
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -505,7 +505,7 @@ public class Production {
 			/* Execute query*/
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -537,7 +537,7 @@ public class Production {
 			/* Execute query*/
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -561,7 +561,7 @@ public class Production {
 			/* Execute query*/
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -583,7 +583,7 @@ public class Production {
 			/* Execute query*/
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -610,7 +610,7 @@ public class Production {
 			/* Execute query*/
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -662,7 +662,7 @@ public class Production {
 			
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -689,7 +689,7 @@ public class Production {
 			/* Execute query*/
 			wolfpub.WolfPubDb db = WolfPub.getDb();
 			db.createStatement();
-			db.executeQuery(sb.toString());	
+			db.executeQueryAndPrintResults(sb.toString());	
 			} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
