@@ -672,7 +672,7 @@ public class Production {
 			/* Add query*/
 			StringBuilder sb = new StringBuilder();
 			// TODO: many cases
-			sb.append("SELECT * FROM Article WHERE ");
+			sb.append("SELECT * FROM Book NATURAL JOIN Edition NATURAL JOIN Publication WHERE ");
 			if (PublicationDate != null) {
 				sb.append("PublicationDate='" + PublicationDate + "'");
 				andit = true;
