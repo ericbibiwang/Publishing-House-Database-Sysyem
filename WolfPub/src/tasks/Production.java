@@ -307,22 +307,23 @@ public class Production {
 		return 0; // decide on the appropriate return type; either return a tuple or print to stdout
 	}
 	
-	/* description: update article
-	 * Check MySQLWorkbench results after run configuration as follow: production updateArticle 5 2020-05-01 test5 -a updateText
-	 * TODO: test update
-	 */
 	@Command( name = "updateArticle", description = "update article or article text")
 	public static int updateArticle( @Option( names = {"-a", "-articleText"}, required = true, description = "Article text")	String ArticleText,
 									 @Parameters( paramLabel = "PublicationID")	String PublicationID,
 									 @Parameters( paramLabel = "Issue Date")		String IssueDate,
 									 @Parameters( paramLabel = "Article Title")	String ArticleTitle) {
+		String query = "UPDATE Article SET ArticleText='"+ArticleText+"' WHERE PublicationID='"+PublicationID+"' AND IssueDate"
+				+ "='"+IssueDate+"' AND ArticleTitle='"+ArticleTitle+"'";
 		
-		System.out.println("TODO: Attempt to update article " + PublicationID + " " + IssueDate + " " + ArticleTitle + " with");
 		
-		if (ArticleText != null) {
-			System.out.println("ArticleText: " + ArticleText);
+		try {
+			WolfPubDb db = new WolfPubDb();
+			db.createStatement();
+			db.executeUpdate(query);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
 		return 0;
 	}
 	
@@ -379,22 +380,27 @@ public class Production {
 	}
 	
 	/* description: update chapter
-	 * Check MySQLWorkbench results after run configuration as follow: production updateChapter 1234567890 5 -c updateTitle
+	 * Check MySQLWorkbench results after run configuration as follow: production updateChapter 1234567890 5 -c update
 	 * TODO: test update
 	 */
 	@Command( name = "updateChapter", description = "update chapter")
 	public static int updateChapter(@Option( names = {"-c", "-chapterTitle"}, required = true, description = "Chapter Title")	String chapterTitle,
-									@Parameters( paramLabel = "ISBN")		  String isbn,
+									@Parameters( paramLabel = "ISBN")		   String isbn,
 									@Parameters( paramLabel = "ChapterNumber") String ChapterNumber) {
 		
-		System.out.println("TODO: Attempt to update chapter " + isbn + " " + ChapterNumber + " with");
+		String query = "UPDATE Chapter SET ChapterTitle='"+chapterTitle+"' WHERE ISBN='"+isbn+"' AND ChapterNumber"
+				+ "="+ChapterNumber;
 		
-		if (chapterTitle != null) {
-			System.out.println("chapterTitle: " + chapterTitle);
+		
+		try {
+			WolfPubDb db = new WolfPubDb();
+			db.createStatement();
+			db.executeUpdate(query);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
 		return 0;
-		
 	}
 	
 	/* description: enter topic to publication
@@ -450,10 +456,18 @@ public class Production {
 	public static int updateTopic(@Parameters( paramLabel = "TopicName")		String TopicName,
 								  @Parameters( paramLabel = "PublicationID")	String PublicationID) {
 		
-		System.out.println("TODO: Attempt to update topic " + TopicName + " " + PublicationID);
+		String query = "UPDATE PublicationHas SET TopicName='"+TopicName+"' WHERE PublicationID='"+PublicationID;
 		
+		
+		try {
+			WolfPubDb db = new WolfPubDb();
+			db.createStatement();
+			db.executeUpdate(query);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return 0;
-		
 	}
 	
 	@Command( name = "enterAuthorAOrDatetoArticle", description = "enter author or date to article with table WritesArticle")
