@@ -665,7 +665,7 @@ public class Production {
 									 @Option( names = "-editionNumber", description = "Edition Number", paramLabel = "EditionNumber")				Double EditionNumber,
 									 @Option( names = "-PublicationTitle", description = "Publication Title", paramLabel = "PublicationTitle")		String PublicationTitle) {
 		if (PublicationDate == null && PublicationType == null && EditionNumber == null && PublicationTitle == null) {
-			System.err.println("Search by -author, -issn, -issued, or -article_title");
+			System.err.println("Search by -publicationDate, -publicationType, -editionNumber, or -PublicationTitle");
 		}
 		try {
 			boolean andit = false;
